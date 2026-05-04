@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AUROR — Settings</title>
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('auror-theme');
+      if(!t){ t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    }catch(e){}
+  })();
+</script>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family: var(--auror-font);
+    background: var(--surface);
+    color: var(--text);
+    font-size: var(--auror-fs-14);
+    line-height: var(--auror-lh-body);
+    min-height: 100vh;
+  }
+  a{ color: inherit; }
+
+  /* ----- Header rail (same pattern as design-system.html) ----- */
+  .dsHeaderRail{
+    position: sticky; top: 0; z-index: 50;
+    background: var(--surface);
+    padding: 10px 10px 8px;
+  }
+  .dsHeader{
+    height: 48px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--shadow-sm);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .dsBrand{
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 13px; letter-spacing: 0.02em;
+  }
+  .dsBrandMark{
+    width: 24px; height: 24px;
+    border-radius: var(--auror-r);
+    background: var(--accent);
+    color: #1a1a1a;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; letter-spacing: -0.02em;
+  }
+  .iconBtn--accent{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--text-on-accent);
+  }
+  .iconBtn--accent:hover{
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: var(--text-on-accent);
+  }
+  .dsBack{
+    display: none;
+    padding: 6px 10px; border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 12px; font-weight: 600;
+    text-decoration: none; background: transparent;
+    transition: background var(--auror-dur-base) var(--auror-ease),
+                color var(--auror-dur-base) var(--auror-ease);
+  }
+  .dsBack:hover{ background: var(--surface); color: var(--text); }
+  .dsBack svg{ width: 12px; height: 12px; }
+
+  .dsHeaderRight{ display: flex; align-items: center; gap: 8px; }
+  .iconBtn{
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    background: var(--surface-raised);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background var(--auror-dur-base) var(--auror-ease);
+  }
+  .iconBtn:hover{ background: var(--surface); color: var(--text); }
+  .iconBtn svg{ width: 16px; height: 16px; }
+
+  /* ----- Page wrapper ----- */
+  .wrap{
+    max-width: 1040px; margin: 0 auto;
+    padding: 16px 20px 80px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  /* Page title */
+  .pageHead{
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; margin: 4px 4px 0;
+  }
+  .pageHead h1{
+    margin: 0;
+    font-size: 22px; font-weight: 700; letter-spacing: -0.01em;
+  }
+  .pageHead p{
+    margin: 4px 0 0;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .pageHead .savedHint{
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .pageHead .savedHint .ok{
+    display: inline-block; width: 6px; height: 6px;
+    border-radius: 2px;
+    background: var(--success);
+    margin-right: 6px;
+  }
+
+  /* ----- Card ----- */
+  .card{
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .cardHd{
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cardHd h2{
+    margin: 0; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .cardHd .hint{
+    color: var(--text-muted); font-size: 12px;
+  }
+  .cardBd{ padding: 18px; }
+  .cardBd.tight{ padding: 6px 18px; }
+  .cardBd > p.note{
+    margin: 0 0 14px; font-size: 13px; color: var(--text-muted);
+    line-height: var(--auror-lh-snug);
+  }
+
+  /* ----- Tabs ----- */
+  .tabs{
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar{ display: none; }
+  .tab{
+    padding: 12px 14px; font-size: 13px; font-weight: 500;
+    color: var(--text-muted);
+    border: none; background: transparent; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    transition: color var(--auror-dur-base) var(--auror-ease),
+                border-color var(--auror-dur-base) var(--auror-ease);
+  }
+  .tab:hover{ color: var(--text); }
+  .tab.active{ color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  .tabBody{ display: none; }
+  .tabBody.active{ display: block; }
+
+  /* ----- Form rows ----- */
+  .row{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 12px;
+  }
+  .row.three{ grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 700px){
+    .row, .row.three{ grid-template-columns: 1fr; }
+  }
+  .field{ display: flex; flex-direction: column; gap: 6px; }
+  .field label{
+    font-size: 12px; font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.01em;
+  }
+  .field .help{
+    font-size: 11px; color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .input,
+  .select{
+    height: var(--auror-control-h);
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    font-family: inherit; font-size: 13px;
+    color: var(--text);
+    background: var(--surface-raised);
+    outline: none;
+    transition: border-color var(--auror-dur-base) var(--auror-ease),
+                box-shadow var(--auror-dur-base) var(--auror-ease);
+  }
+  .select{ appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+  .input:focus, .select:focus{
+    border-color: var(--accent);
+    box-shadow: var(--focus-ring);
+  }
+  textarea.input{
+    height: auto; padding: 8px 10px;
+    line-height: var(--auror-lh-snug);
+    resize: vertical; min-height: 80px;
+  }
+  .input.mono{ font-variant-numeric: tabular-nums; }
+
+  /* unit-suffixed input */
+  .inputUnit{
+    position: relative; display: flex; align-items: center;
+  }
+  .inputUnit .input{ flex: 1; padding-right: 38px; }
+  .inputUnit .unit{
+    position: absolute; right: 12px;
+    font-size: 11px; color: var(--text-muted);
+    pointer-events: none;
+    font-weight: 600;
+  }
+
+  /* ----- Toggle row ----- */
+  .toggleRow{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-soft);
+    gap: 16px;
+  }
+  .toggleRow:last-child{ border-bottom: none; }
+  .toggleRow .info{ display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .toggleRow .lbl{
+    font-size: 13px; font-weight: 500; color: var(--text);
+  }
+  .toggleRow .desc{
+    font-size: 12px; color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* AUROR switch — defined in tokens.css */
+
+  /* Section divider inside a tabBody */
+  .sep{
+    border: none; border-top: 1px solid var(--border-soft);
+    margin: 18px -18px;
+  }
+  .sectionLabel{
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 4px 0 12px;
+  }
+
+  /* ----- Buttons ----- */
+  .btnRow{
+    display: flex; gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    align-items: center;
+  }
+  .btnRow .spacer{ flex: 1; }
+  .btnRow .saveStatus{
+    font-size: 12px; color: var(--text-muted);
+    margin-right: 4px;
+  }
+  .btn{
+    height: var(--auror-control-h);
+    padding: 0 14px;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    background: var(--surface-raised);
+    color: var(--text);
+    font: 600 13px var(--auror-font);
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background var(--auror-dur-base) var(--auror-ease),
+                border-color var(--auror-dur-base) var(--auror-ease);
+  }
+  .btn:hover{ background: var(--surface); }
+  .btn.primary{
+    background: var(--accent); border-color: var(--accent-hover);
+    color: var(--text-on-accent);
+  }
+  .btn.primary:hover{ background: var(--accent-hover); }
+  .btn.danger{
+    background: transparent;
+    border-color: var(--danger-soft);
+    color: var(--danger);
+  }
+  .btn.danger:hover{ background: var(--danger-soft); }
+  .btn svg{ width: 14px; height: 14px; }
+
+  /* ----- Alerts ----- */
+  .alert{
+    padding: 10px 14px;
+    border-radius: var(--auror-r);
+    font-size: 12px;
+    margin-bottom: 12px;
+    border: 1px solid;
+    line-height: 1.4;
+  }
+  .alert.info{
+    background: var(--accent-tint);
+    border-color: var(--accent-soft);
+    color: var(--text-secondary);
+  }
+  .alert.success{
+    background: rgba(21,128,61,.10);
+    border-color: rgba(21,128,61,.30);
+    color: var(--success);
+  }
+  .alert.warn{
+    background: rgba(180,83,9,.10);
+    border-color: rgba(180,83,9,.30);
+    color: var(--warn);
+  }
+
+  /* ----- Stats grid (Storage tab) ----- */
+  .stats{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 700px){ .stats{ grid-template-columns: 1fr 1fr; } }
+  .stat{
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    padding: 14px;
+    background: var(--surface);
+  }
+  .stat .lbl{
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .stat .val{
+    font-size: 22px; font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .sub{
+    font-size: 11px; color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ----- Two-column action card ----- */
+  .actionGrid{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 700px){ .actionGrid{ grid-template-columns: 1fr; } }
+  .actionCard{
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    padding: 16px;
+    background: var(--surface);
+  }
+  .actionCard .ttl{
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .actionCard .desc{
+    font-size: 12px; color: var(--text-muted);
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+
+  /* ----- Shortcut list ----- */
+  .shortList{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 32px;
+  }
+  @media (max-width: 700px){ .shortList{ grid-template-columns: 1fr; } }
+  .shortItem{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+  }
+  .shortItem:last-child{ border-bottom: none; }
+  .shortItem .nm{ color: var(--text); }
+  .shortItem .keys{ display: flex; gap: 4px; }
+  .kbd{
+    font-family: var(--auror-font);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 11px;
+    padding: 3px 7px; min-width: 22px;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    color: var(--text-secondary);
+    box-shadow: 0 1px 0 var(--border-strong);
+  }
+
+  /* ----- About card ----- */
+  .aboutGrid{
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    row-gap: 10px; column-gap: 16px;
+    font-size: 13px;
+    align-items: center;
+  }
+  .aboutGrid .k{ color: var(--text-muted); font-size: 12px; }
+  .aboutGrid .v{ color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* Color swatch radio (drawing defaults) */
+  .swatchRow{
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .swatchOpt{
+    width: 28px; height: 28px;
+    border-radius: var(--auror-r);
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+    transition: transform var(--auror-dur-fast) var(--auror-ease);
+  }
+  .swatchOpt:hover{ transform: scale(1.06); }
+  .swatchOpt.on{ border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent), var(--focus-ring); }
+
+  /* ---- Brand mark image override ---- */
+  .dsBrandMark{ overflow: hidden; }
+  .dsBrandMark img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ---- Account chip (header right) ---- */
+  .acctBtn{
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 32px;
+    padding: 0 10px 0 6px;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    background: var(--surface-raised);
+    color: var(--text);
+    font: 600 12px var(--auror-font);
+    cursor: pointer;
+    transition: background var(--auror-dur-base) var(--auror-ease);
+  }
+  .acctBtn:hover{ background: var(--surface-sunken); }
+  .acctBtn .av{
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--text-on-accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+  }
+  .acctBtn .role{
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+  .acctBtn .role.admin{ color: var(--accent); }
+  .acctMenu{
+    position: absolute; right: 16px; top: 56px;
+    min-width: 220px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-md);
+    padding: 6px;
+    z-index: 60;
+    display: none;
+  }
+  .acctMenu.open{ display: block; }
+  .acctMenu .who{
+    padding: 8px 10px 10px;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: 6px;
+  }
+  .acctMenu .who .nm{ font-size: 13px; font-weight: 600; }
+  .acctMenu .who .em{ font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .acctItem{
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text);
+    text-decoration: none;
+    width: 100%; border: none; background: transparent;
+    text-align: left;
+    font-family: inherit;
+  }
+  .acctItem:hover{ background: var(--surface-sunken); }
+  .acctItem.danger{ color: var(--danger); }
+  .acctItem svg{ width: 14px; height: 14px; opacity: 0.8; }
+
+  /* ---- Hide tab when not admin ---- */
+  .tab[data-tab="admin"]{ display: none; }
+  body[data-role="admin"] .tab[data-tab="admin"]{ display: inline-flex; align-items: center; gap: 6px; }
+  .tab[data-tab="admin"]::before{
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  /* ---- Admin: logo upload ---- */
+  .logoUpload{
+    display: flex; align-items: center; gap: 18px;
+    padding: 14px;
+    border: 1px dashed var(--border);
+    border-radius: var(--auror-r);
+    background: var(--surface);
+  }
+  .logoPreview{
+    width: 64px; height: 64px;
+    border-radius: var(--auror-r);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 28px; letter-spacing: -0.02em;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .logoPreview img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+  .logoMeta{ flex: 1; min-width: 0; }
+  .logoMeta .ttl{ font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .logoMeta .desc{ font-size: 12px; color: var(--text-muted); line-height: 1.45; margin-bottom: 8px; }
+  .logoActions{ display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ---- User table ---- */
+  .userTable{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .userTable th{
+    text-align: left;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .userTable td{
+    padding: 10px;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: middle;
+  }
+  .userTable tr:last-child td{ border-bottom: none; }
+  .userTable .av{
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--surface-sunken);
+    color: var(--text-secondary);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .userTable .nm{ font-weight: 600; }
+  .userTable .em{ font-size: 12px; color: var(--text-muted); }
+  .roleTag{
+    display: inline-flex; align-items: center;
+    height: 22px; padding: 0 8px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: var(--surface);
+  }
+  .roleTag.admin{
+    color: var(--accent);
+    border-color: var(--accent-soft);
+    background: var(--accent-tint);
+  }
+  .statusDot{
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 2px;
+    background: var(--text-muted);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .statusDot.active{ background: var(--success); }
+  .statusDot.invited{ background: var(--warn); }
+  .userActions{
+    display: flex; gap: 4px; justify-content: flex-end;
+  }
+  .iconAction{
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background var(--auror-dur-base) var(--auror-ease),
+                color var(--auror-dur-base) var(--auror-ease);
+  }
+  .iconAction:hover{ background: var(--surface-sunken); color: var(--text); }
+  .iconAction.danger:hover{ color: var(--danger); background: var(--danger-soft); }
+  .iconAction svg{ width: 13px; height: 13px; }
+
+  /* ---- Connection status pill (OIDC/LDAP) ---- */
+  .connStatus{
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--auror-r);
+    font-size: 11px; font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+  }
+  .connStatus.ok{ color: var(--success); border-color: rgba(21,128,61,.3); background: rgba(21,128,61,.08); }
+  .connStatus.warn{ color: var(--warn); border-color: rgba(180,83,9,.3); background: rgba(180,83,9,.08); }
+  .connStatus.err{ color: var(--danger); border-color: var(--danger-soft); background: rgba(185,28,28,.08); }
+
+  /* ---- Log list ---- */
+  .logList{
+    font-family: var(--auror-mono);
+    font-size: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    padding: 10px 12px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .logRow{
+    display: grid;
+    grid-template-columns: 140px 80px 1fr;
+    gap: 12px;
+    padding: 4px 0;
+    color: var(--text-secondary);
+    border-bottom: 1px dashed var(--border-soft);
+  }
+  .logRow:last-child{ border-bottom: none; }
+  .logRow .ts{ color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .logRow .lvl{ font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .logRow .lvl.ok{ color: var(--success); }
+  .logRow .lvl.warn{ color: var(--warn); }
+  .logRow .lvl.err{ color: var(--danger); }
+
+  /* ---- Admin overview tiles ---- */
+  .adminOverview{
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    margin-bottom: 4px;
+  }
+  @media (max-width: 700px){ .adminOverview{ grid-template-columns: repeat(2, 1fr); } }
+  .ovTile{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .ovTile .lbl{
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .ovTile .val{
+    font-size: 22px; font-weight: 700; color: var(--text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .ovTile .delta{
+    font-size: 11px; color: var(--text-muted);
+  }
+  .ovTile .delta.up{ color: var(--success); }
+  .ovTile .delta.down{ color: var(--danger); }
+
+  /* ---- Per-user usage table ---- */
+  .perUserTable{
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .perUserTable th{
+    text-align: left;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .perUserTable td{
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .perUserTable tr:last-child td{ border-bottom: none; }
+  .perUserTable .nm{ font-weight: 600; }
+  .perUserTable .em{ font-size: 12px; color: var(--text-muted); }
+  .perUserTable .num{ font-variant-numeric: tabular-nums; }
+  .usageBar{
+    display: inline-block; vertical-align: middle;
+    width: 60px; height: 4px;
+    background: var(--surface-sunken);
+    border-radius: 2px;
+    margin-right: 8px;
+    overflow: hidden;
+  }
+  .usageBar > span{
+    display: block; height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ---- Source badge (Local/LDAP/OIDC) ---- */
+  .srcTag{
+    display: inline-flex; align-items: center;
+    height: 20px; padding: 0 7px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: var(--surface);
+  }
+
+  /* ---- Modal ---- */
+  .modalBg{
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 200;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modalBg.open{ display: flex; }
+  .modal{
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-lg, 0 20px 40px rgba(15,23,42,.18));
+    width: 100%; max-width: 460px;
+    overflow: hidden;
+    animation: modalIn var(--auror-dur-base) var(--auror-ease);
+  }
+  @keyframes modalIn{
+    from{ transform: translateY(8px); opacity: 0; }
+    to{ transform: translateY(0); opacity: 1; }
+  }
+  .modalHd{
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modalHd h3{
+    font-size: 14px; font-weight: 700; color: var(--text);
+    margin: 0;
+  }
+  .modalCloseBtn{
+    width: 28px; height: 28px;
+    background: transparent; border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .modalCloseBtn:hover{ background: var(--surface-sunken); color: var(--text); }
+  .modalCloseBtn svg{ width: 14px; height: 14px; }
+  .modalBd{ padding: 16px 18px; }
+  .modalFt{
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; justify-content: flex-end;
+    background: var(--surface);
+  }
+
+  /* ---- Inline alert ---- */
+  .inlineAlert{
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px; line-height: 1.5;
+    color: var(--text-secondary);
+  }
+  .inlineAlert svg{ width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+  .inlineAlert.warn{
+    background: rgba(180, 83, 9, .07);
+    border-color: rgba(180, 83, 9, .25);
+    color: var(--text);
+  }
+  .inlineAlert.warn svg{ color: var(--warn); }
+  .inlineAlert.success{
+    background: rgba(21, 128, 61, .07);
+    border-color: rgba(21, 128, 61, .25);
+  }
+  .inlineAlert.success svg{ color: var(--success); }
+  .inlineAlert.error{
+    background: rgba(185, 28, 28, .07);
+    border-color: rgba(185, 28, 28, .25);
+  }
+  .inlineAlert.error svg{ color: var(--danger); }
+  .inlineAlert .ttl{ font-weight: 600; color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* ---- Migration grid (export/import side-by-side) ---- */
+  .migrationGrid{
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 700px){ .migrationGrid{ grid-template-columns: 1fr; } }
+  .migrationCard{
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    padding: 14px;
+    background: var(--surface);
+  }
+  .migrationCard .ttl{
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .migrationCard .ttl svg{ width: 14px; height: 14px; color: var(--text-muted); }
+  .migrationCard .desc{
+    font-size: 12px; color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  /* ---- Floating service bar (standardized) ---- */
+  .svcBar{
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-md);
+    font-size: 12px;
+  }
+  .svcBar .svcDot{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px transparent;
+  }
+  .svcBar .svcDot.online{
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(21, 128, 61, .15);
+    animation: svcPulse 2.4s ease-in-out infinite;
+  }
+  .svcBar .svcDot.offline{ background: var(--danger); }
+  .svcBar .svcDot.warn{ background: var(--warn); }
+  @keyframes svcPulse{
+    0%, 100%{ box-shadow: 0 0 0 3px rgba(21, 128, 61, .15); }
+    50%{ box-shadow: 0 0 0 5px rgba(21, 128, 61, .05); }
+  }
+  .svcBar .svcMeta{
+    display: flex; flex-direction: column; gap: 1px;
+    line-height: 1.2;
+    min-width: 0;
+  }
+  .svcBar .svcName{
+    font-weight: 600; color: var(--text);
+    font-size: 12px;
+  }
+  .svcBar .svcStatus{
+    font-size: 10px; color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .svcBar .svcSep{
+    width: 1px; align-self: stretch; background: var(--border);
+    margin: 0 2px;
+  }
+  .svcBar .svcAction{
+    background: transparent; border: none;
+    color: var(--text-muted); cursor: pointer;
+    font-size: 11px; font-weight: 600;
+    padding: 4px 8px; border-radius: 5px;
+    font-family: inherit;
+  }
+  .svcBar .svcAction:hover{ background: var(--surface-sunken); color: var(--text); }
+  .svcBar.floating{
+    position: fixed; bottom: 18px; left: 18px;
+    z-index: 60;
+  }
+
+  /* ---- Tweaks panel (role simulator) ---- */
+  .roleSim{
+    position: fixed;
+    right: 18px; bottom: 18px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-md);
+    padding: 12px 14px;
+    z-index: 70;
+    font-size: 12px;
+    min-width: 220px;
+  }
+  .roleSim .ttl{
+    font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .roleSim .seg{
+    display: flex; gap: 0;
+    background: var(--surface-sunken);
+    border-radius: 6px;
+    padding: 3px;
+  }
+  .roleSim .seg button{
+    flex: 1;
+    border: none; background: transparent;
+    padding: 5px 8px;
+    font: 600 11px var(--auror-font);
+    color: var(--text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .roleSim .seg button.on{
+    background: var(--surface-raised);
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(17,24,39,.06);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============= HEADER ============= -->
+<div class="dsHeaderRail">
+  <header class="dsHeader">
+    <div class="dsBrand">
+      <span class="dsBrandMark" id="brandMark">A</span>
+      <span>AUROR</span>
+    </div>
+    <div class="dsHeaderRight">
+      <button class="iconBtn" type="button" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark">
+        <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="ic ic-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"></path></svg>
+      </button>
+      <button class="acctBtn" id="acctBtn" type="button" aria-haspopup="menu" aria-expanded="false">
+        <span class="av" id="acctAv">A</span>
+        <span><span class="role" id="acctRole">User</span></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <a class="iconBtn iconBtn--accent" href="design-system.html" aria-label="Back" title="Back to design system">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"></path></svg>
+      </a>
+    </div>
+  </header>
+  <div class="acctMenu" id="acctMenu" role="menu">
+    <div class="who">
+      <div class="nm" id="acctName">Guest</div>
+      <div class="em" id="acctEmail">not signed in</div>
+    </div>
+    <a class="acctItem" href="#tab-general">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9 1.65 1.65 0 0 0 4.27 7.18l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9 1.65 1.65 0 0 0 20.91 10H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      Settings
+    </a>
+    <button class="acctItem danger" id="logoutBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+      Sign out
+    </button>
+    <a class="acctItem" id="loginLink" href="login.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"></path></svg>
+      Sign in
+    </a>
+  </div>
+    </div>
+  </header>
+</div>
+
+<div class="wrap">
+
+  <!-- Page heading -->
+  <div class="pageHead">
+    <div>
+      <h1>Settings</h1>
+      <p>Configure how AUROR behaves on this device. Changes save automatically.</p>
+    </div>
+    <span class="savedHint" id="savedHint"><span class="ok"></span>All changes saved</span>
+  </div>
+
+  <!-- Tabs card -->
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="general">General</button>
+      <button class="tab" data-tab="editor">Editor</button>
+      <button class="tab" data-tab="defaults">Drawing defaults</button>
+      <button class="tab" data-tab="shortcuts">Shortcuts</button>
+      <button class="tab" data-tab="storage">Storage</button>
+      <button class="tab" data-tab="about">About</button>
+      <button class="tab" data-tab="admin">Admin</button>
+    </div>
+
+    <!-- ============= GENERAL ============= -->
+    <div class="tabBody active" id="tab-general">
+      <div class="cardBd">
+        <div class="row">
+          <div class="field">
+            <label for="lang">Language</label>
+            <select class="select" id="lang">
+              <option value="en">English</option>
+              <option value="it">Italiano</option>
+              <option value="de">Deutsch</option>
+              <option value="fr">Français</option>
+            </select>
+            <div class="help">Used for menus and tooltips.</div>
+          </div>
+          <div class="field">
+            <label for="theme">Theme</label>
+            <select class="select" id="theme">
+              <option value="system">Match system</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+            <div class="help">Overrides the toggle in the header.</div>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel">Behavior</div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Autosave to local storage</span>
+            <span class="desc">Persist the current sketch in this browser as you draw.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="autosave" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Confirm before clearing canvas</span>
+            <span class="desc">Show a confirmation dialog when emptying the workspace.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="confirmClear" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Tooltips</span>
+            <span class="desc">Hover hints over toolbar tools and dock items.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="tooltips" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Send anonymous usage stats</span>
+            <span class="desc">Counts of drawings created. No content, no identity.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="telemetry">
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= EDITOR ============= -->
+    <div class="tabBody" id="tab-editor">
+      <div class="cardBd">
+        <div class="sectionLabel">Snap & grid</div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Grid snap</span>
+            <span class="desc">Snap cursor to grid intersections while drawing.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="snapGrid" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Object snap</span>
+            <span class="desc">Snap to endpoints, midpoints, centers, intersections.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="snapObj" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Ortho mode</span>
+            <span class="desc">Constrain new lines to horizontal or vertical only.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="ortho">
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Show rulers</span>
+            <span class="desc">Display rulers along the top and left of the canvas.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="rulers" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel">Units & precision</div>
+
+        <div class="row three">
+          <div class="field">
+            <label for="units">Drawing units</label>
+            <select class="select" id="units">
+              <option value="mm">Millimeters (mm)</option>
+              <option value="cm">Centimeters (cm)</option>
+              <option value="m">Meters (m)</option>
+              <option value="in">Inches (in)</option>
+              <option value="ft">Feet (ft)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="precision">Coordinate precision</label>
+            <select class="select" id="precision">
+              <option value="0">0 (1)</option>
+              <option value="1">1 (0.1)</option>
+              <option value="2" selected>2 (0.01)</option>
+              <option value="3">3 (0.001)</option>
+              <option value="4">4 (0.0001)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="angleUnit">Angle units</label>
+            <select class="select" id="angleUnit">
+              <option value="deg">Degrees</option>
+              <option value="rad">Radians</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel">Performance</div>
+
+        <div class="row">
+          <div class="field">
+            <label for="historyDepth">Undo history depth</label>
+            <div class="inputUnit">
+              <input class="input mono" type="number" id="historyDepth" value="50" min="10" max="500">
+              <span class="unit">steps</span>
+            </div>
+            <div class="help">Higher values use more memory.</div>
+          </div>
+          <div class="field">
+            <label for="renderQuality">Render quality</label>
+            <select class="select" id="renderQuality">
+              <option value="low">Low (fastest)</option>
+              <option value="balanced" selected>Balanced</option>
+              <option value="high">High (smoothest)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= DRAWING DEFAULTS ============= -->
+    <div class="tabBody" id="tab-defaults">
+      <div class="cardBd">
+        <p class="note">These settings apply to newly drawn entities. Existing geometry isn't changed.</p>
+
+        <div class="sectionLabel">Stroke</div>
+
+        <div class="row">
+          <div class="field">
+            <label>Default color</label>
+            <div class="swatchRow" id="swatchRow">
+              <span class="swatchOpt on" data-color="#111827" style="background:#111827"></span>
+              <span class="swatchOpt" data-color="#f5a000" style="background:#f5a000"></span>
+              <span class="swatchOpt" data-color="#5b8c5a" style="background:#5b8c5a"></span>
+              <span class="swatchOpt" data-color="#2f6f9f" style="background:#2f6f9f"></span>
+              <span class="swatchOpt" data-color="#b15a3c" style="background:#b15a3c"></span>
+              <span class="swatchOpt" data-color="#6b4f9c" style="background:#6b4f9c"></span>
+              <span class="swatchOpt" data-color="#b91c1c" style="background:#b91c1c"></span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="strokeW">Stroke width</label>
+            <div class="inputUnit">
+              <input class="input mono" type="number" id="strokeW" value="0.5" min="0.1" step="0.1">
+              <span class="unit">mm</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="strokeStyle">Line style</label>
+            <select class="select" id="strokeStyle">
+              <option value="solid">Solid</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+              <option value="dashdot">Dash-dot</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="strokeCap">Line cap</label>
+            <select class="select" id="strokeCap">
+              <option value="round" selected>Round</option>
+              <option value="butt">Butt</option>
+              <option value="square">Square</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel">Text</div>
+
+        <div class="row">
+          <div class="field">
+            <label for="textFont">Default font</label>
+            <select class="select" id="textFont">
+              <option value="Inter" selected>Inter</option>
+              <option value="mono">Inter (tabular)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="textSize">Default text size</label>
+            <div class="inputUnit">
+              <input class="input mono" type="number" id="textSize" value="3.5" min="1" step="0.5">
+              <span class="unit">mm</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel">New documents</div>
+
+        <div class="row">
+          <div class="field">
+            <label for="paperSize">Default paper size</label>
+            <select class="select" id="paperSize">
+              <option value="A4">A4 (210 × 297 mm)</option>
+              <option value="A3">A3 (297 × 420 mm)</option>
+              <option value="A5">A5 (148 × 210 mm)</option>
+              <option value="Letter">Letter (8.5 × 11 in)</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="paperOrient">Orientation</label>
+            <select class="select" id="paperOrient">
+              <option value="portrait">Portrait</option>
+              <option value="landscape" selected>Landscape</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= SHORTCUTS ============= -->
+    <div class="tabBody" id="tab-shortcuts">
+      <div class="cardBd">
+        <p class="note">Keyboard shortcuts are read-only in this build. Custom bindings ship in a future release.</p>
+
+        <div class="sectionLabel">Tools</div>
+        <div class="shortList">
+          <div class="shortItem"><span class="nm">Select</span><span class="keys"><span class="kbd">V</span></span></div>
+          <div class="shortItem"><span class="nm">Line</span><span class="keys"><span class="kbd">L</span></span></div>
+          <div class="shortItem"><span class="nm">Rectangle</span><span class="keys"><span class="kbd">R</span></span></div>
+          <div class="shortItem"><span class="nm">Circle</span><span class="keys"><span class="kbd">C</span></span></div>
+          <div class="shortItem"><span class="nm">Polyline</span><span class="keys"><span class="kbd">P</span></span></div>
+          <div class="shortItem"><span class="nm">Text</span><span class="keys"><span class="kbd">T</span></span></div>
+          <div class="shortItem"><span class="nm">Move</span><span class="keys"><span class="kbd">M</span></span></div>
+          <div class="shortItem"><span class="nm">Rotate</span><span class="keys"><span class="kbd">⇧</span><span class="kbd">R</span></span></div>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel">Editing</div>
+        <div class="shortList">
+          <div class="shortItem"><span class="nm">Undo</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">Z</span></span></div>
+          <div class="shortItem"><span class="nm">Redo</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">⇧</span><span class="kbd">Z</span></span></div>
+          <div class="shortItem"><span class="nm">Copy</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">C</span></span></div>
+          <div class="shortItem"><span class="nm">Paste</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">V</span></span></div>
+          <div class="shortItem"><span class="nm">Delete</span><span class="keys"><span class="kbd">⌫</span></span></div>
+          <div class="shortItem"><span class="nm">Group</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">G</span></span></div>
+          <div class="shortItem"><span class="nm">Toggle ortho</span><span class="keys"><span class="kbd">F8</span></span></div>
+          <div class="shortItem"><span class="nm">Toggle snap</span><span class="keys"><span class="kbd">F9</span></span></div>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel">View</div>
+        <div class="shortList">
+          <div class="shortItem"><span class="nm">Zoom in</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">=</span></span></div>
+          <div class="shortItem"><span class="nm">Zoom out</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">−</span></span></div>
+          <div class="shortItem"><span class="nm">Zoom to fit</span><span class="keys"><span class="kbd">F</span></span></div>
+          <div class="shortItem"><span class="nm">Pan</span><span class="keys"><span class="kbd">Space</span></span></div>
+          <div class="shortItem"><span class="nm">Toggle grid</span><span class="keys"><span class="kbd">G</span></span></div>
+          <div class="shortItem"><span class="nm">Toggle layers</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">L</span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= STORAGE ============= -->
+    <div class="tabBody" id="tab-storage">
+      <div class="cardBd">
+        <div class="stats">
+          <div class="stat">
+            <div class="lbl">Drawings</div>
+            <div class="val" id="statDrawings">12</div>
+            <div class="sub">in browser storage</div>
+          </div>
+          <div class="stat">
+            <div class="lbl">Storage used</div>
+            <div class="val" id="statBytes">428 KB</div>
+            <div class="sub">of ~10 MB available</div>
+          </div>
+          <div class="stat">
+            <div class="lbl">Last backup</div>
+            <div class="val" style="font-size:14px;font-weight:600">Never</div>
+            <div class="sub">Export to file to back up</div>
+          </div>
+        </div>
+
+        <div class="alert info">
+          AUROR runs entirely in your browser. Drawings live in this device's local storage — clear your browser data and they're gone. Export regularly.
+        </div>
+
+        <div class="actionGrid">
+          <div class="actionCard">
+            <div class="ttl">Export all drawings</div>
+            <div class="desc">Download a JSON archive of every drawing currently saved in this browser. Use it to move your work between devices.</div>
+            <button class="btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download archive
+            </button>
+          </div>
+          <div class="actionCard">
+            <div class="ttl">Import archive</div>
+            <div class="desc">Restore drawings from a previously exported AUROR archive. Existing drawings with the same id are replaced.</div>
+            <button class="btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Choose file…
+            </button>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="sectionLabel" style="color:var(--danger)">Danger zone</div>
+
+        <div class="actionCard" style="border-color: var(--danger-soft);">
+          <div class="ttl">Reset all settings</div>
+          <div class="desc">Restore every preference on this page to its factory default. Drawings are not touched.</div>
+          <button class="btn danger">Reset settings</button>
+        </div>
+
+        <div class="actionCard" style="border-color: var(--danger-soft); margin-top: 10px;">
+          <div class="ttl">Erase all data</div>
+          <div class="desc">Permanently delete every drawing and setting from this browser. This cannot be undone.</div>
+          <button class="btn danger">Erase everything</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= ABOUT ============= -->
+    <div class="tabBody" id="tab-about">
+      <div class="cardBd">
+        <div class="aboutGrid">
+          <span class="k">Application</span>     <span class="v">AUROR</span>
+          <span class="k">Version</span>         <span class="v">1.0.0</span>
+          <span class="k">Build</span>           <span class="v">main · 80e2426</span>
+          <span class="k">Released</span>        <span class="v">May 3, 2026</span>
+          <span class="k">Engine</span>          <span class="v">Browser-native (Canvas 2D)</span>
+          <span class="k">Storage</span>         <span class="v">Local — IndexedDB + localStorage</span>
+          <span class="k">License</span>         <span class="v">MIT</span>
+          <span class="k">Repository</span>      <span class="v"><a href="#" style="color:var(--accent); text-decoration:none;">graphimecc/auror</a></span>
+          <span class="k">Source</span>          <span class="v">Forked from ranzaWARE/stego</span>
+        </div>
+
+        <hr class="sep">
+
+        <div class="alert info" style="margin: 0;">
+          AUROR is a single-file 2D drafting engine. No server, no telemetry by default, no account. Press <span class="kbd">?</span> from anywhere in the app to open the shortcuts overlay.
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= ADMIN ============= -->
+    <div class="tabBody" id="tab-admin">
+      <div class="cardBd">
+
+        <p class="note">Administrator-only settings. These changes affect every user of this AUROR instance and are persisted on the backend.</p>
+
+        <!-- ===== Overview ===== -->
+        <div class="sectionLabel">Overview</div>
+        <div class="adminOverview">
+          <div class="ovTile">
+            <span class="lbl">Users</span>
+            <span class="val" id="ovUsers">4</span>
+            <span class="delta up">+1 this week</span>
+          </div>
+          <div class="ovTile">
+            <span class="lbl">Active sessions</span>
+            <span class="val" id="ovSessions">2</span>
+            <span class="delta">across 2 devices</span>
+          </div>
+          <div class="ovTile">
+            <span class="lbl">Projects</span>
+            <span class="val" id="ovProjects">128</span>
+            <span class="delta up">+12 this week</span>
+          </div>
+          <div class="ovTile">
+            <span class="lbl">Storage used</span>
+            <span class="val" id="ovStorage">4.2&nbsp;GB</span>
+            <span class="delta">of 50 GB · 8%</span>
+          </div>
+        </div>
+
+        <hr class="sep">
+
+        <!-- ===== Branding ===== -->
+        <div class="sectionLabel">Branding · App logo</div>
+        <div class="logoUpload">
+          <div class="logoPreview" id="logoPreview">A</div>
+          <div class="logoMeta">
+            <div class="ttl">Application logo</div>
+            <div class="desc">Replaces the "A" mark in the header throughout AUROR. Recommended: square PNG/SVG ≥ 128×128 px, transparent background.</div>
+            <div class="logoActions">
+              <label class="btn primary" for="logoFile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"></path></svg>
+                Upload logo
+              </label>
+              <input type="file" id="logoFile" accept="image/png,image/svg+xml,image/jpeg" hidden>
+              <button class="btn danger" id="logoReset" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
+                Reset to default
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <hr class="sep">
+
+        <!-- ===== Users ===== -->
+        <div class="sectionLabel">User management</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
+          <div style="font-size:12px; color:var(--text-muted)" id="userCountSummary">4 users · 1 admin · 1 invited · 2 directory-synced</div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn" id="newUserBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+              New user
+            </button>
+            <button class="btn primary" id="inviteBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+              Invite
+            </button>
+          </div>
+        </div>
+        <table class="userTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Last seen</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr data-user="admin@auror.dev" data-role="admin" data-active="1" data-source="local">
+              <td><span class="av">AU</span><span class="nm">Admin User</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5a3b3e3733341a3b2f283528743e3f2c">[email&#160;protected]</a></div></td>
+              <td><span class="roleTag admin">Admin</span></td>
+              <td><span class="srcTag">Local</span></td>
+              <td><span class="statusDot active"></span>Active</td>
+              <td>2 minutes ago</td>
+              <td>
+                <div class="userActions">
+                  <button class="iconAction" data-act="demote" title="Remove admin role"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4"></path></svg></button>
+                  <button class="iconAction" data-act="resetpw" title="Reset password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></button>
+                  <button class="iconAction" data-act="deactivate" title="Deactivate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>
+                  <button class="iconAction danger" data-act="delete" title="Delete user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+                </div>
+              </td>
+            </tr>
+            <tr data-user="user@auror.dev" data-role="user" data-active="1" data-source="local">
+              <td><span class="av">NU</span><span class="nm">Normal User</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4a3f392f380a2b3f382538642e2f3c">[email&#160;protected]</a></div></td>
+              <td><span class="roleTag">User</span></td>
+              <td><span class="srcTag">Local</span></td>
+              <td><span class="statusDot active"></span>Active</td>
+              <td>1 hour ago</td>
+              <td>
+                <div class="userActions">
+                  <button class="iconAction" data-act="promote" title="Promote to admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.8 5.8 21 7 14 2 9.3 9 8.5 12 2"></polygon></svg></button>
+                  <button class="iconAction" data-act="resetpw" title="Reset password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></button>
+                  <button class="iconAction" data-act="deactivate" title="Deactivate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>
+                  <button class="iconAction danger" data-act="delete" title="Delete user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+                </div>
+              </td>
+            </tr>
+            <tr data-user="marco.rossi@graphimeccgroup.it" data-role="user" data-active="1" data-source="ldap">
+              <td><span class="av">MR</span><span class="nm">Marco Rossi</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="14797566777b3a667b67677d54736675647c7d7971777773667b61643a7d60">[email&#160;protected]</a></div></td>
+              <td><span class="roleTag">User</span></td>
+              <td><span class="srcTag">LDAP</span></td>
+              <td><span class="statusDot active"></span>Active</td>
+              <td>Yesterday</td>
+              <td>
+                <div class="userActions">
+                  <button class="iconAction" data-act="promote" title="Promote to admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.8 5.8 21 7 14 2 9.3 9 8.5 12 2"></polygon></svg></button>
+                  <button class="iconAction" data-act="deactivate" title="Deactivate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>
+                  <button class="iconAction danger" data-act="delete" title="Delete user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+                </div>
+              </td>
+            </tr>
+            <tr data-user="paola.verdi@graphimeccgroup.it" data-role="user" data-active="0" data-source="oidc">
+              <td><span class="av">PV</span><span class="nm">Paola Verdi</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d6a6b7b9bab7f8a0b3a4b2bf96b1a4b7a6bebfbbb3b5b5b1a4b9a3a6f8bfa2">[email&#160;protected]</a></div></td>
+              <td><span class="roleTag">User</span></td>
+              <td><span class="srcTag">OIDC</span></td>
+              <td><span class="statusDot invited"></span>Invited</td>
+              <td>—</td>
+              <td>
+                <div class="userActions">
+                  <button class="iconAction" data-act="resend" title="Resend invite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>
+                  <button class="iconAction danger" data-act="delete" title="Cancel invite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr class="sep">
+
+        <!-- ===== Per-user usage ===== -->
+        <div class="sectionLabel">Usage by user</div>
+        <table class="perUserTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th class="num">Projects</th>
+              <th>Storage</th>
+              <th>Last active</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="nm">Admin User</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a6c7c2cbcfc8e6c7d3d4c9d488c2c3d0">[email&#160;protected]</a></div></td>
+              <td class="num">42</td>
+              <td><span class="usageBar"><span style="width:80%"></span></span><span class="num">1.6 GB</span></td>
+              <td class="em">2 minutes ago</td>
+            </tr>
+            <tr>
+              <td><span class="nm">Normal User</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1164627463517064637e633f757467">[email&#160;protected]</a></div></td>
+              <td class="num">31</td>
+              <td><span class="usageBar"><span style="width:55%"></span></span><span class="num">1.1 GB</span></td>
+              <td class="em">1 hour ago</td>
+            </tr>
+            <tr>
+              <td><span class="nm">Marco Rossi</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d8b5b9aabbb7f6aab7ababb198bfaab9a8b0b1b5bdbbbbbfaab7ada8f6b1ac">[email&#160;protected]</a></div></td>
+              <td class="num">55</td>
+              <td><span class="usageBar"><span style="width:75%"></span></span><span class="num">1.5 GB</span></td>
+              <td class="em">Yesterday</td>
+            </tr>
+            <tr>
+              <td><span class="nm">Paola Verdi</span><div class="em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8b8a9a7a4a9e6beadbaaca188afbaa9b8a0a1a5adababafbaa7bdb8e6a1bc">[email&#160;protected]</a></div></td>
+              <td class="num">0</td>
+              <td><span class="usageBar"><span style="width:0%"></span></span><span class="num">0 B</span></td>
+              <td class="em">—</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr class="sep">
+
+        <!-- ===== OIDC ===== -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <div class="sectionLabel" style="margin:0;">Authentication · OIDC / SSO</div>
+          <span class="connStatus ok"><span class="statusDot active"></span>Connected</span>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Enable OIDC sign-in</span>
+            <span class="desc">Show "Continue with SSO" on the login page.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="oidcEnable" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="oidcIssuer">Issuer URL</label>
+            <input class="input" id="oidcIssuer" value="https://auth.graphimeccgroup.it/realms/auror">
+            <div class="help">OpenID provider discovery base URL.</div>
+          </div>
+          <div class="field">
+            <label for="oidcClient">Client ID</label>
+            <input class="input" id="oidcClient" value="auror-web">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="oidcSecret">Client secret</label>
+            <input class="input" id="oidcSecret" type="password" value="••••••••••••••••">
+          </div>
+          <div class="field">
+            <label for="oidcScope">Scopes</label>
+            <input class="input" id="oidcScope" value="openid profile email groups">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="oidcRedirect">Redirect URI</label>
+            <input class="input mono" id="oidcRedirect" value="https://auror.local/callback" readonly>
+            <div class="help">Add this URI to your provider's allowed callbacks.</div>
+          </div>
+          <div class="field">
+            <label for="oidcAdminGroup">Admin group claim</label>
+            <input class="input" id="oidcAdminGroup" value="auror-admins">
+            <div class="help">Members of this group are granted admin role.</div>
+          </div>
+        </div>
+
+        <div class="btnRow">
+          <span class="spacer"></span>
+          <button class="btn" type="button">Test connection</button>
+          <button class="btn primary" type="button">Save OIDC config</button>
+        </div>
+
+        <hr class="sep">
+
+        <!-- ===== LDAP ===== -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <div class="sectionLabel" style="margin:0;">Authentication · LDAP / Active Directory</div>
+          <span class="connStatus warn"><span class="statusDot invited"></span>Last sync: 4h ago</span>
+        </div>
+
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Enable LDAP sign-in</span>
+            <span class="desc">Allow users to authenticate against your directory.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="ldapEnable" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="ldapHost">Server</label>
+            <input class="input mono" id="ldapHost" value="ldaps://ldap.graphimeccgroup.it:636">
+          </div>
+          <div class="field">
+            <label for="ldapBaseDn">Base DN</label>
+            <input class="input mono" id="ldapBaseDn" value="dc=graphimeccgroup,dc=it">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="ldapBindDn">Bind DN</label>
+            <input class="input mono" id="ldapBindDn" value="cn=auror-svc,ou=services,dc=graphimeccgroup,dc=it">
+          </div>
+          <div class="field">
+            <label for="ldapBindPwd">Bind password</label>
+            <input class="input" id="ldapBindPwd" type="password" value="••••••••••••">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="ldapUserFilter">User search filter</label>
+            <input class="input mono" id="ldapUserFilter" value="(&amp;(objectClass=person)(uid=%u))">
+          </div>
+          <div class="field">
+            <label for="ldapGroupFilter">Admin group DN</label>
+            <input class="input mono" id="ldapGroupFilter" value="cn=auror-admins,ou=groups,dc=graphimeccgroup,dc=it">
+          </div>
+        </div>
+        <div class="toggleRow">
+          <div class="info">
+            <span class="lbl">Auto-provision users on first login</span>
+            <span class="desc">Create local accounts for verified directory users automatically.</span>
+          </div>
+          <label class="aurorSwitch">
+            <input type="checkbox" id="ldapAutoProvision" checked>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="btnRow">
+          <span class="spacer"></span>
+          <button class="btn" type="button">Test bind</button>
+          <button class="btn" type="button">Sync now</button>
+          <button class="btn primary" type="button">Save LDAP config</button>
+        </div>
+
+        <hr class="sep">
+
+        <!-- ===== Backend / Docker ===== -->
+        <div class="sectionLabel">Backend</div>
+        <div class="aboutGrid">
+          <span class="k">API endpoint</span>     <span class="v"><code style="font-family:var(--auror-mono); font-size:12px;">https://api.auror.local</code></span>
+          <span class="k">Container</span>        <span class="v">auror-backend:2.4.0 (docker)</span>
+          <span class="k">Database</span>         <span class="v">PostgreSQL 16 — connected</span>
+          <span class="k">Storage</span>          <span class="v">S3 (auror-assets) — 4.2 GB / 50 GB</span>
+          <span class="k">Uptime</span>           <span class="v">14d 6h 22m</span>
+        </div>
+
+        <!-- Companion services (Whisper-like AI services, mailers, etc.) -->
+        <div style="display:flex; align-items:center; gap:8px; margin-top:18px; margin-bottom:8px;">
+          <div class="sectionLabel" style="margin:0;">Companion services</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="svcBar">
+            <span class="svcDot online"></span>
+            <span class="svcMeta">
+              <span class="svcName">auror-mailer</span>
+              <span class="svcStatus">SMTP relay · uptime 14d</span>
+            </span>
+            <span class="svcSep"></span>
+            <button class="svcAction" type="button">Test</button>
+          </div>
+          <div class="svcBar">
+            <span class="svcDot warn"></span>
+            <span class="svcMeta">
+              <span class="svcName">auror-search</span>
+              <span class="svcStatus">indexing · 84%</span>
+            </span>
+            <span class="svcSep"></span>
+            <button class="svcAction" type="button">Logs</button>
+          </div>
+          <div class="svcBar">
+            <span class="svcDot offline"></span>
+            <span class="svcMeta">
+              <span class="svcName">auror-render</span>
+              <span class="svcStatus">offline · last seen 2h ago</span>
+            </span>
+            <span class="svcSep"></span>
+            <button class="svcAction" type="button">Restart</button>
+          </div>
+        </div>
+        <div class="help" style="margin-top:8px;">Reusable floating component — same pattern works for Whisper-style AI services in other apps (Quetza, Stego).</div>
+
+        <hr class="sep">
+
+        <!-- ===== Backup & Migration ===== -->
+        <div class="sectionLabel">Backup &amp; migration</div>
+        <div class="migrationGrid">
+          <div class="migrationCard">
+            <div class="ttl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Global export
+            </div>
+            <div class="desc">Download a ZIP archive with the database, every project file and the configuration. Use it to migrate this instance to another server.</div>
+            <button class="btn" type="button">
+              Download backup
+            </button>
+          </div>
+          <div class="migrationCard">
+            <div class="ttl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Global import
+            </div>
+            <div class="desc">Upload an archive exported from another instance. New users are created with temporary password <code style="font-family:var(--auror-mono); font-size:11px;">changeme123</code>.</div>
+            <label class="btn" style="cursor:pointer;">
+              Upload archive
+              <input type="file" accept=".zip" id="importFile" hidden>
+            </label>
+          </div>
+        </div>
+        <div class="inlineAlert warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <div>
+            <span class="ttl">Additive merge — never destructive</span>
+            Existing data is preserved. Projects with the same ID are updated; existing user accounts are not modified.
+          </div>
+        </div>
+
+        <div class="actionGrid" style="margin-top:14px;">
+          <div class="actionCard">
+            <div class="ttl">Scheduled backups</div>
+            <div class="desc">Automatic daily snapshot at 03:00 — last run 6h ago, 412 MB.</div>
+            <button class="btn" type="button">Configure schedule</button>
+          </div>
+          <div class="actionCard">
+            <div class="ttl">Restore from backup</div>
+            <div class="desc">Replace current state with an uploaded snapshot. Destructive — cannot be undone.</div>
+            <button class="btn danger" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"></path></svg>
+              Restore from backup
+            </button>
+          </div>
+        </div>
+
+        <hr class="sep">
+
+        <!-- ===== Audit log ===== -->
+        <div class="sectionLabel">Access log</div>
+        <div class="logList" id="logList">
+          <div class="logRow"><span class="ts">2026-05-04 14:02:11</span><span class="lvl ok">login</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="147570797d7a547561667b663a707162">[email&#160;protected]</a> — local — 192.168.1.42</span></div>
+          <div class="logRow"><span class="ts">2026-05-04 13:48:52</span><span class="lvl ok">login</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a8c5c9dacbc786dac7dbdbc1e8cfdac9d8c0c1c5cdcbcbcfdac7ddd886c1dc">[email&#160;protected]</a> — ldap — 192.168.1.18</span></div>
+          <div class="logRow"><span class="ts">2026-05-04 12:14:03</span><span class="lvl ok">logout</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="671214021527061215081549030211">[email&#160;protected]</a></span></div>
+          <div class="logRow"><span class="ts">2026-05-04 11:02:31</span><span class="lvl warn">login.fail</span><span>unknown — local — 5 attempts from 81.2.x.x</span></div>
+          <div class="logRow"><span class="ts">2026-05-04 09:30:00</span><span class="lvl ok">ldap.sync</span><span>32 users · 4 added · 1 disabled</span></div>
+          <div class="logRow"><span class="ts">2026-05-04 08:01:14</span><span class="lvl ok">backup</span><span>scheduled · 412 MB</span></div>
+          <div class="logRow"><span class="ts">2026-05-03 18:55:09</span><span class="lvl err">oidc.error</span><span>token validation failed — issuer mismatch</span></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /.card -->
+
+</div><!-- /.wrap -->
+
+<!-- ===== Modals ===== -->
+<div class="modalBg" id="newUserModal" role="dialog" aria-labelledby="newUserTitle" aria-modal="true">
+  <div class="modal">
+    <div class="modalHd">
+      <h3 id="newUserTitle">New user</h3>
+      <button class="modalCloseBtn" type="button" data-close="newUserModal" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modalBd">
+      <div class="row">
+        <div class="field">
+          <label for="nuEmail">Email</label>
+          <input class="input" id="nuEmail" placeholder="name.surname@graphimeccgroup.it" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="nuDisplay">Display name</label>
+          <input class="input" id="nuDisplay" placeholder="Name Surname">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="nuPassword">Temporary password</label>
+          <input class="input" id="nuPassword" type="password" value="changeme123">
+          <div class="help">User will be prompted to change it on first login.</div>
+        </div>
+        <div class="field">
+          <label for="nuRole">Role</label>
+          <select class="select" id="nuRole">
+            <option value="user">User</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modalFt">
+      <button class="btn" type="button" data-close="newUserModal">Cancel</button>
+      <button class="btn primary" type="button" id="nuCreate">Create user</button>
+    </div>
+  </div>
+</div>
+
+<div class="modalBg" id="resetPwModal" role="dialog" aria-labelledby="resetPwTitle" aria-modal="true">
+  <div class="modal">
+    <div class="modalHd">
+      <h3 id="resetPwTitle">Reset password — <span id="resetPwTarget" style="color:var(--text-muted); font-weight:500;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="473234223507263235283569232231">[email&#160;protected]</a></span></h3>
+      <button class="modalCloseBtn" type="button" data-close="resetPwModal" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modalBd">
+      <div class="field">
+        <label for="rpwNew">New password</label>
+        <input class="input" id="rpwNew" type="password" value="">
+        <div class="help">Minimum 8 characters. The user will be required to update it at next sign-in.</div>
+      </div>
+    </div>
+    <div class="modalFt">
+      <button class="btn" type="button" data-close="resetPwModal">Cancel</button>
+      <button class="btn primary" type="button" id="rpwSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modalBg" id="confirmModal" role="dialog" aria-labelledby="confirmTitle" aria-modal="true">
+  <div class="modal">
+    <div class="modalHd">
+      <h3 id="confirmTitle">Confirm action</h3>
+      <button class="modalCloseBtn" type="button" data-close="confirmModal" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modalBd">
+      <p id="confirmMsg" style="font-size:13px; color:var(--text-secondary); line-height:1.5;">Are you sure?</p>
+    </div>
+    <div class="modalFt">
+      <button class="btn" type="button" data-close="confirmModal">Cancel</button>
+      <button class="btn danger" type="button" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Role simulator (Tweaks) -->
+<div class="roleSim" id="roleSim" hidden>
+  <div class="ttl">Role simulator</div>
+  <div class="seg" id="roleSeg">
+    <button data-role="guest">Guest</button>
+    <button data-role="user">User</button>
+    <button data-role="admin" class="on">Admin</button>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // Theme toggle (sync with design-system.html via auror-theme key)
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    var sun = btn.querySelector('.ic-sun');
+    var moon = btn.querySelector('.ic-moon');
+    function syncIcons(){
+      var cur = document.documentElement.getAttribute('data-theme') || 'light';
+      if(!sun || !moon) return;
+      if(cur === 'dark'){ sun.style.display = 'none'; moon.style.display = ''; }
+      else { sun.style.display = ''; moon.style.display = 'none'; }
+    }
+    syncIcons();
+    btn.addEventListener('click', function(){
+      var cur = document.documentElement.getAttribute('data-theme') || 'light';
+      var nxt = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nxt);
+      try{ localStorage.setItem('auror-theme', nxt); }catch(e){}
+      syncIcons();
+    });
+    // Cross-tab sync
+    window.addEventListener('storage', function(e){
+      if(e.key === 'auror-theme' && e.newValue){
+        document.documentElement.setAttribute('data-theme', e.newValue);
+        syncIcons();
+      }
+    });
+  })();
+
+  // Tabs
+  (function(){
+    var tabs = document.querySelectorAll('.tab');
+    tabs.forEach(function(t){
+      t.addEventListener('click', function(){
+        document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+        document.querySelectorAll('.tabBody').forEach(function(x){ x.classList.remove('active'); });
+        t.classList.add('active');
+        var id = 'tab-' + t.getAttribute('data-tab');
+        var body = document.getElementById(id);
+        if (body) body.classList.add('active');
+      });
+    });
+  })();
+
+  // ====== AUTH / ROLE / BRANDING ======
+  (function(){
+    function getUser(){
+      try{ return JSON.parse(localStorage.getItem('auror.user') || 'null'); }
+      catch(e){ return null; }
+    }
+    function setUser(u){
+      if(!u) localStorage.removeItem('auror.user');
+      else localStorage.setItem('auror.user', JSON.stringify(u));
+      applyUser();
+    }
+
+    function initials(name){
+      if(!name) return 'G';
+      return name.trim().split(/\s+/).map(function(p){ return p[0]; }).slice(0,2).join('').toUpperCase();
+    }
+
+    function applyUser(){
+      var u = getUser();
+      var role = (u && u.role) || 'guest';
+      document.body.setAttribute('data-role', role);
+      // Account chip
+      var av = document.getElementById('acctAv');
+      var roleEl = document.getElementById('acctRole');
+      var nameEl = document.getElementById('acctName');
+      var emailEl = document.getElementById('acctEmail');
+      var logoutBtn = document.getElementById('logoutBtn');
+      var loginLink = document.getElementById('loginLink');
+      if(u){
+        if(av) av.textContent = initials(u.name);
+        if(roleEl){ roleEl.textContent = u.role; roleEl.className = 'role ' + (u.role === 'admin' ? 'admin' : ''); }
+        if(nameEl) nameEl.textContent = u.name || u.email || 'User';
+        if(emailEl) emailEl.textContent = u.email || '';
+        if(logoutBtn) logoutBtn.style.display = '';
+        if(loginLink) loginLink.style.display = 'none';
+      } else {
+        if(av) av.textContent = 'G';
+        if(roleEl){ roleEl.textContent = 'Guest'; roleEl.className = 'role'; }
+        if(nameEl) nameEl.textContent = 'Guest';
+        if(emailEl) emailEl.textContent = 'not signed in';
+        if(logoutBtn) logoutBtn.style.display = 'none';
+        if(loginLink) loginLink.style.display = '';
+      }
+      // If admin tab is active but user lost admin, fall back to general
+      var adminTab = document.querySelector('.tab[data-tab="admin"]');
+      var adminBody = document.getElementById('tab-admin');
+      if(role !== 'admin' && adminBody && adminBody.classList.contains('active')){
+        adminBody.classList.remove('active');
+        document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+        document.getElementById('tab-general').classList.add('active');
+        document.querySelector('.tab[data-tab="general"]').classList.add('active');
+      }
+    }
+
+    // Apply custom logo to brand mark + logo preview in admin
+    function applyLogo(){
+      var logo = localStorage.getItem('auror.logo');
+      var marks = [document.getElementById('brandMark'), document.getElementById('logoPreview')];
+      marks.forEach(function(el){
+        if(!el) return;
+        if(logo){
+          el.innerHTML = '';
+          var img = document.createElement('img');
+          img.src = logo; img.alt = 'AUROR';
+          el.appendChild(img);
+        } else {
+          el.innerHTML = 'A';
+        }
+      });
+    }
+
+    // Account menu open/close
+    var acctBtn = document.getElementById('acctBtn');
+    var acctMenu = document.getElementById('acctMenu');
+    if(acctBtn && acctMenu){
+      acctBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        acctMenu.classList.toggle('open');
+        acctBtn.setAttribute('aria-expanded', acctMenu.classList.contains('open') ? 'true' : 'false');
+      });
+      document.addEventListener('click', function(e){
+        if(!acctMenu.contains(e.target) && e.target !== acctBtn){
+          acctMenu.classList.remove('open');
+          acctBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    // Logout
+    var logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn){
+      logoutBtn.addEventListener('click', function(){
+        setUser(null);
+        location.href = 'login.html';
+      });
+    }
+
+    // Logo upload
+    var logoFile = document.getElementById('logoFile');
+    if(logoFile){
+      logoFile.addEventListener('change', function(e){
+        var f = e.target.files && e.target.files[0];
+        if(!f) return;
+        var rd = new FileReader();
+        rd.onload = function(ev){
+          try{ localStorage.setItem('auror.logo', ev.target.result); }catch(err){}
+          applyLogo();
+        };
+        rd.readAsDataURL(f);
+      });
+    }
+    var logoReset = document.getElementById('logoReset');
+    if(logoReset){
+      logoReset.addEventListener('click', function(){
+        localStorage.removeItem('auror.logo');
+        applyLogo();
+      });
+    }
+
+    // Role simulator (Tweaks)
+    var roleSim = document.getElementById('roleSim');
+    var roleSeg = document.getElementById('roleSeg');
+    function syncRoleSeg(){
+      var u = getUser();
+      var role = (u && u.role) || 'guest';
+      roleSeg.querySelectorAll('button').forEach(function(b){
+        b.classList.toggle('on', b.getAttribute('data-role') === role);
+      });
+    }
+    if(roleSeg){
+      roleSeg.addEventListener('click', function(e){
+        var b = e.target.closest('button[data-role]');
+        if(!b) return;
+        var r = b.getAttribute('data-role');
+        if(r === 'guest'){ setUser(null); }
+        else if(r === 'user'){ setUser({name:'Normal User', email:'user@auror.dev', role:'user'}); }
+        else if(r === 'admin'){ setUser({name:'Admin User', email:'admin@auror.dev', role:'admin'}); }
+        syncRoleSeg();
+      });
+    }
+
+    // Tweaks panel show/hide via parent host messages
+    window.addEventListener('message', function(e){
+      var d = e.data || {};
+      if(d.type === '__activate_edit_mode'){ roleSim.hidden = false; syncRoleSeg(); }
+      if(d.type === '__deactivate_edit_mode'){ roleSim.hidden = true; }
+    });
+    try{ window.parent.postMessage({type:'__edit_mode_available'}, '*'); }catch(err){}
+
+    // Cross-tab user sync
+    window.addEventListener('storage', function(e){
+      if(e.key === 'auror.user'){ applyUser(); syncRoleSeg(); }
+      if(e.key === 'auror.logo'){ applyLogo(); }
+    });
+
+    // Bootstrap: default to admin user for demo if nothing set
+    if(!localStorage.getItem('auror.user')){
+      setUser({name:'Admin User', email:'admin@auror.dev', role:'admin'});
+    } else {
+      applyUser();
+    }
+    applyLogo();
+    syncRoleSeg();
+
+    // ===== Modals =====
+    function openModal(id){ var m = document.getElementById(id); if(m) m.classList.add('open'); }
+    function closeModal(id){ var m = document.getElementById(id); if(m) m.classList.remove('open'); }
+    document.addEventListener('click', function(e){
+      // Close on backdrop click or [data-close]
+      if(e.target.classList && e.target.classList.contains('modalBg')){
+        e.target.classList.remove('open');
+        return;
+      }
+      var closer = e.target.closest('[data-close]');
+      if(closer){ closeModal(closer.getAttribute('data-close')); return; }
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){
+        document.querySelectorAll('.modalBg.open').forEach(function(m){ m.classList.remove('open'); });
+      }
+    });
+
+    // ===== Confirm helper =====
+    var confirmOkBtn = document.getElementById('confirmOk');
+    var confirmAction = null;
+    function askConfirm(msg, onOk){
+      document.getElementById('confirmMsg').textContent = msg;
+      confirmAction = onOk;
+      openModal('confirmModal');
+    }
+    if(confirmOkBtn){
+      confirmOkBtn.addEventListener('click', function(){
+        if(typeof confirmAction === 'function') confirmAction();
+        confirmAction = null;
+        closeModal('confirmModal');
+      });
+    }
+
+    // ===== New user modal =====
+    var newUserBtn = document.getElementById('newUserBtn');
+    var inviteBtn = document.getElementById('inviteBtn');
+    if(newUserBtn) newUserBtn.addEventListener('click', function(){ openModal('newUserModal'); });
+    if(inviteBtn) inviteBtn.addEventListener('click', function(){ openModal('newUserModal'); });
+
+    var nuCreate = document.getElementById('nuCreate');
+    if(nuCreate){
+      nuCreate.addEventListener('click', function(){
+        var email = (document.getElementById('nuEmail').value || '').trim();
+        var name  = (document.getElementById('nuDisplay').value || '').trim();
+        var role  = document.getElementById('nuRole').value;
+        if(!email){ document.getElementById('nuEmail').focus(); return; }
+        if(!name) name = email.split('@')[0];
+        var initials = name.split(/\s+/).map(function(s){return s[0];}).slice(0,2).join('').toUpperCase();
+        var tbody = document.getElementById('userTableBody');
+        if(tbody){
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-user', email);
+          tr.setAttribute('data-role', role);
+          tr.setAttribute('data-active', '0');
+          tr.setAttribute('data-source', 'local');
+          tr.innerHTML =
+            '<td><span class="av">'+initials+'</span><span class="nm">'+name+'</span><div class="em">'+email+'</div></td>' +
+            '<td><span class="roleTag '+(role==='admin'?'admin':'')+'">'+(role==='admin'?'Admin':'User')+'</span></td>' +
+            '<td><span class="srcTag">Local</span></td>' +
+            '<td><span class="statusDot invited"></span>Invited</td>' +
+            '<td>—</td>' +
+            '<td><div class="userActions">' +
+              '<button class="iconAction" data-act="resend" title="Resend invite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>' +
+              '<button class="iconAction danger" data-act="delete" title="Cancel invite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>' +
+            '</div></td>';
+          tbody.appendChild(tr);
+        }
+        document.getElementById('nuEmail').value = '';
+        document.getElementById('nuDisplay').value = '';
+        document.getElementById('nuPassword').value = 'changeme123';
+        document.getElementById('nuRole').value = 'user';
+        closeModal('newUserModal');
+      });
+    }
+
+    // ===== Reset password modal =====
+    var rpwSave = document.getElementById('rpwSave');
+    if(rpwSave){
+      rpwSave.addEventListener('click', function(){
+        var v = document.getElementById('rpwNew').value;
+        if(!v || v.length < 8){
+          var inp = document.getElementById('rpwNew');
+          inp.style.borderColor = 'var(--danger)';
+          setTimeout(function(){ inp.style.borderColor = ''; }, 1200);
+          return;
+        }
+        document.getElementById('rpwNew').value = '';
+        closeModal('resetPwModal');
+      });
+    }
+
+    // ===== User table actions =====
+    var userTbody = document.getElementById('userTableBody');
+    if(userTbody){
+      userTbody.addEventListener('click', function(e){
+        var btn = e.target.closest('[data-act]');
+        if(!btn) return;
+        var tr = btn.closest('tr');
+        if(!tr) return;
+        var act = btn.getAttribute('data-act');
+        var email = tr.getAttribute('data-user');
+        var name = tr.querySelector('.nm') ? tr.querySelector('.nm').textContent : email;
+
+        if(act === 'promote'){
+          tr.setAttribute('data-role', 'admin');
+          var roleCell = tr.children[1];
+          roleCell.innerHTML = '<span class="roleTag admin">Admin</span>';
+          // swap promote → demote
+          btn.setAttribute('data-act', 'demote');
+          btn.setAttribute('title', 'Remove admin role');
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4"></path></svg>';
+        } else if(act === 'demote'){
+          tr.setAttribute('data-role', 'user');
+          var roleCell2 = tr.children[1];
+          roleCell2.innerHTML = '<span class="roleTag">User</span>';
+          btn.setAttribute('data-act', 'promote');
+          btn.setAttribute('title', 'Promote to admin');
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.8 5.8 21 7 14 2 9.3 9 8.5 12 2"></polygon></svg>';
+        } else if(act === 'deactivate'){
+          tr.setAttribute('data-active', '0');
+          var stCell = tr.children[3];
+          stCell.innerHTML = '<span class="statusDot"></span>Inactive';
+          btn.setAttribute('data-act', 'activate');
+          btn.setAttribute('title', 'Activate');
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        } else if(act === 'activate'){
+          tr.setAttribute('data-active', '1');
+          var stCell2 = tr.children[3];
+          stCell2.innerHTML = '<span class="statusDot active"></span>Active';
+          btn.setAttribute('data-act', 'deactivate');
+          btn.setAttribute('title', 'Deactivate');
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>';
+        } else if(act === 'resetpw'){
+          document.getElementById('resetPwTarget').textContent = email;
+          document.getElementById('rpwNew').value = '';
+          openModal('resetPwModal');
+        } else if(act === 'delete'){
+          askConfirm('Delete user "' + name + '"? Their projects will be preserved but they will lose access immediately.', function(){
+            tr.remove();
+          });
+        } else if(act === 'resend'){
+          // visual feedback only (placeholder)
+          var prev = btn.style.color;
+          btn.style.color = 'var(--success)';
+          setTimeout(function(){ btn.style.color = prev; }, 800);
+        }
+      });
+    }
+  })();
+
+  // Color swatch radio
+  (function(){
+    var row = document.getElementById('swatchRow');
+    if (!row) return;
+    row.addEventListener('click', function(e){
+      var t = e.target.closest('.swatchOpt');
+      if (!t) return;
+      row.querySelectorAll('.swatchOpt').forEach(function(x){ x.classList.remove('on'); });
+      t.classList.add('on');
+    });
+  })();
+
+  // Saved hint flash on any change
+  (function(){
+    var hint = document.getElementById('savedHint');
+    var t;
+    function flash(){
+      hint.firstChild.style.background = 'var(--warn)';
+      hint.lastChild.nodeValue = ' Saving…';
+      clearTimeout(t);
+      t = setTimeout(function(){
+        hint.firstChild.style.background = 'var(--success)';
+        hint.lastChild.nodeValue = ' All changes saved';
+      }, 600);
+    }
+    document.querySelectorAll('input, select').forEach(function(el){
+      el.addEventListener('change', flash);
+    });
+  })();
+</script>
+
+</body>
+</html>

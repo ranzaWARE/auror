@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AUROR — Sign in</title>
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('auror-theme');
+      if(!t){ t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      if(t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    }catch(e){}
+  })();
+</script>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  *{ box-sizing: border-box; }
+  html, body{ margin: 0; padding: 0; height: 100%; }
+  body{
+    font-family: var(--auror-font);
+    background: var(--surface);
+    color: var(--text);
+    font-size: var(--auror-fs-14);
+    line-height: var(--auror-lh-body);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  a{ color: var(--accent); text-decoration: none; }
+  a:hover{ text-decoration: underline; }
+
+  /* ---- Top rail with theme toggle (matches design-system / settings) ---- */
+  .topRail{
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topBrand{
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 13px; letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .topBrand .mark{
+    width: 24px; height: 24px;
+    border-radius: var(--auror-r);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; letter-spacing: -0.02em;
+    overflow: hidden;
+  }
+  .topBrand .mark img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+  .topBrand .name{ color: var(--text); }
+
+  .iconBtn{
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    background: var(--surface-raised);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background var(--auror-dur-base) var(--auror-ease);
+  }
+  .iconBtn:hover{ background: var(--surface-sunken); color: var(--text); }
+  .iconBtn svg{ width: 16px; height: 16px; }
+
+  /* ---- Centered card layout ---- */
+  .pageWrap{
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 80px 20px 40px;
+  }
+  .loginCard{
+    width: 100%; max-width: 420px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-md);
+    padding: 32px 28px 24px;
+  }
+  .cardHead{ text-align: center; margin-bottom: 24px; }
+  .cardHead .bigMark{
+    width: 48px; height: 48px;
+    border-radius: var(--auror-r);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 22px; letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .cardHead .bigMark img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cardHead h1{
+    margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .cardHead .sub{ margin: 0; color: var(--text-muted); font-size: 13px; }
+
+  /* ---- Method tabs (Local / OIDC / LDAP) ---- */
+  .methods{
+    display: flex; gap: 4px;
+    background: var(--surface-sunken);
+    border-radius: var(--auror-r);
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+  .methodBtn{
+    flex: 1;
+    background: transparent; border: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background var(--auror-dur-base) var(--auror-ease),
+                color var(--auror-dur-base) var(--auror-ease);
+  }
+  .methodBtn:hover{ color: var(--text); }
+  .methodBtn.active{
+    background: var(--surface-raised);
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(17,24,39,.05);
+  }
+
+  /* ---- Form ---- */
+  .formPane{ display: none; }
+  .formPane.active{ display: block; }
+  .field{ margin-bottom: 14px; }
+  .field label{
+    display: block;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .input{
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--border);
+    background: var(--surface-raised);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color var(--auror-dur-base) var(--auror-ease),
+                box-shadow var(--auror-dur-base) var(--auror-ease);
+  }
+  .input:focus{
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--auror-focus);
+  }
+
+  .row{
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 8px 0 18px;
+    font-size: 12px;
+  }
+  .row .remember{
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text-secondary);
+    cursor: pointer; user-select: none;
+  }
+  .row .remember input{ accent-color: var(--accent); }
+  .row a{ color: var(--text-muted); }
+
+  .primaryBtn{
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: background var(--auror-dur-base) var(--auror-ease);
+  }
+  .primaryBtn:hover{ background: var(--accent-hover); border-color: var(--accent-hover); }
+  .primaryBtn[disabled]{ opacity: 0.6; cursor: not-allowed; }
+
+  /* OIDC / LDAP info blocks */
+  .infoNote{
+    background: var(--surface-sunken);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--auror-r);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .infoNote strong{ color: var(--text); font-weight: 600; }
+
+  .footer{
+    text-align: center;
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Error banner */
+  .err{
+    display: none;
+    background: rgba(185,28,28,.08);
+    border: 1px solid var(--danger-soft);
+    color: var(--danger);
+    border-radius: var(--auror-r);
+    padding: 8px 12px;
+    font-size: 12px;
+    margin-bottom: 14px;
+  }
+  .err.show{ display: block; }
+
+  /* Demo helper */
+  .demoHint{
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .demoHint code{
+    background: var(--surface-sunken);
+    border: 1px solid var(--border-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: var(--auror-mono);
+    font-size: 11px;
+  }
+
+  /* Theme toggle icons */
+  .themeToggle .ic-moon{ display: none; }
+  [data-theme="dark"] .themeToggle .ic-sun{ display: none; }
+  [data-theme="dark"] .themeToggle .ic-moon{ display: block; }
+
+  /* Bottom version */
+  .versionBar{
+    text-align: center;
+    padding: 16px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="topRail">
+  <div class="topBrand">
+    <span class="mark" id="brandMark">A</span>
+    <span class="name">AUROR</span>
+  </div>
+  <button class="iconBtn themeToggle" type="button" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark">
+    <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+    <svg class="ic ic-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"></path></svg>
+  </button>
+</div>
+
+<div class="pageWrap">
+  <div class="loginCard">
+
+    <div class="cardHead">
+      <div class="bigMark" id="bigBrandMark">A</div>
+      <h1>Sign in to AUROR</h1>
+      <p class="sub">Welcome back. Choose how to authenticate.</p>
+    </div>
+
+    <div class="methods" role="tablist">
+      <button class="methodBtn active" data-method="local" type="button">Local</button>
+      <button class="methodBtn" data-method="oidc" type="button">OIDC / SSO</button>
+      <button class="methodBtn" data-method="ldap" type="button">LDAP</button>
+    </div>
+
+    <div class="err" id="errBanner">Invalid credentials. Try again.</div>
+
+    <!-- LOCAL -->
+    <form class="formPane active" id="form-local" autocomplete="on">
+      <div class="field">
+        <label for="localEmail">Email</label>
+        <input class="input" type="email" id="localEmail" placeholder="you@company.com" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="localPwd">Password</label>
+        <input class="input" type="password" id="localPwd" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+      <div class="row">
+        <label class="remember"><input type="checkbox" id="remember" checked> Remember me</label>
+        <a href="#">Forgot password?</a>
+      </div>
+      <button class="primaryBtn" type="submit">Sign in</button>
+      <div class="demoHint">
+        Demo: <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8a9aca5a1a688a9bdbaa7bae6acadbe">[email&#160;protected]</a></code> / <code>admin</code> &nbsp;·&nbsp; <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="463335233406273334293468222330">[email&#160;protected]</a></code> / <code>user</code>
+      </div>
+    </form>
+
+    <!-- OIDC -->
+    <form class="formPane" id="form-oidc">
+      <div class="infoNote">
+        Single sign-on via your organization identity provider.
+        <strong>Issuer:</strong> <span id="oidcIssuer">https://auth.company.com</span>
+      </div>
+      <button class="primaryBtn" type="submit">Continue with SSO</button>
+      <div class="demoHint">Configure the issuer URL in <code>Settings · Admin · OIDC</code>.</div>
+    </form>
+
+    <!-- LDAP -->
+    <form class="formPane" id="form-ldap" autocomplete="on">
+      <div class="infoNote">
+        Bind against your directory service.
+        <strong>Server:</strong> <span id="ldapServer">ldap.company.local:636</span>
+      </div>
+      <div class="field">
+        <label for="ldapUser">Username</label>
+        <input class="input" type="text" id="ldapUser" placeholder="DOMAIN\\user or user@domain" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="ldapPwd">Password</label>
+        <input class="input" type="password" id="ldapPwd" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+      <button class="primaryBtn" type="submit">Sign in via LDAP</button>
+      <div class="demoHint">Configure base DN &amp; bind in <code>Settings · Admin · LDAP</code>.</div>
+    </form>
+
+    <div class="footer">
+      Need an account? <a href="#">Contact your administrator</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="versionBar">AUROR <span id="ver">2.4.0</span> · <a href="design-system.html">Design system</a></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // ---- Brand mark: render custom logo if admin uploaded one
+  (function(){
+    try{
+      var logo = localStorage.getItem('auror.logo');
+      if(!logo) return;
+      ['brandMark','bigBrandMark'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el) return;
+        el.innerHTML = '';
+        var img = document.createElement('img');
+        img.src = logo; img.alt = 'AUROR';
+        el.appendChild(img);
+      });
+    }catch(e){}
+  })();
+
+  // ---- Theme toggle (shared key auror-theme)
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      var next = cur === 'dark' ? 'light' : 'dark';
+      if(next === 'dark') document.documentElement.setAttribute('data-theme','dark');
+      else document.documentElement.removeAttribute('data-theme');
+      try{ localStorage.setItem('auror-theme', next); }catch(e){}
+    });
+    window.addEventListener('storage', function(e){
+      if(e.key === 'auror-theme' && e.newValue){
+        if(e.newValue === 'dark') document.documentElement.setAttribute('data-theme','dark');
+        else document.documentElement.removeAttribute('data-theme');
+      }
+    });
+  })();
+
+  // ---- Method tabs
+  (function(){
+    var btns = document.querySelectorAll('.methodBtn');
+    btns.forEach(function(b){
+      b.addEventListener('click', function(){
+        btns.forEach(function(x){ x.classList.remove('active'); });
+        document.querySelectorAll('.formPane').forEach(function(p){ p.classList.remove('active'); });
+        b.classList.add('active');
+        var pane = document.getElementById('form-' + b.getAttribute('data-method'));
+        if(pane) pane.classList.add('active');
+        document.getElementById('errBanner').classList.remove('show');
+      });
+    });
+  })();
+
+  // ---- Mock auth: write auror.user and redirect
+  function loginAs(role, name, email){
+    var user = { name: name, email: email, role: role, method: window.__authMethod || 'local' };
+    try{ localStorage.setItem('auror.user', JSON.stringify(user)); }catch(e){}
+    var redir = new URLSearchParams(location.search).get('next') || 'design-system.html';
+    location.href = redir;
+  }
+
+  document.getElementById('form-local').addEventListener('submit', function(e){
+    e.preventDefault();
+    window.__authMethod = 'local';
+    var email = document.getElementById('localEmail').value.trim().toLowerCase();
+    var pwd = document.getElementById('localPwd').value;
+    // Demo credentials
+    if(email === 'admin@auror.dev' && pwd === 'admin'){
+      loginAs('admin', 'Admin User', email);
+    } else if(email === 'user@auror.dev' && pwd === 'user'){
+      loginAs('user', 'Normal User', email);
+    } else if(email && pwd){
+      // Permissive demo: any email+password = user
+      loginAs('user', email.split('@')[0], email);
+    } else {
+      document.getElementById('errBanner').textContent = 'Enter email and password.';
+      document.getElementById('errBanner').classList.add('show');
+    }
+  });
+
+  document.getElementById('form-oidc').addEventListener('submit', function(e){
+    e.preventDefault();
+    window.__authMethod = 'oidc';
+    // Mock: pretend SSO returned an admin
+    loginAs('admin', 'SSO Admin', 'admin@sso.company.com');
+  });
+
+  document.getElementById('form-ldap').addEventListener('submit', function(e){
+    e.preventDefault();
+    window.__authMethod = 'ldap';
+    var user = document.getElementById('ldapUser').value.trim();
+    var pwd = document.getElementById('ldapPwd').value;
+    if(!user || !pwd){
+      document.getElementById('errBanner').textContent = 'Enter username and password.';
+      document.getElementById('errBanner').classList.add('show');
+      return;
+    }
+    var role = /admin/i.test(user) ? 'admin' : 'user';
+    loginAs(role, user, user + '@ldap');
+  });
+</script>
+</body></html>

@@ -1,0 +1,1873 @@
+<!DOCTYPE html><html lang="en"><head>
+
+
+
+
+
+
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AUROR — Design System</title>
+<script>
+  // Bootstrap theme — runs before stylesheets parse to avoid flash
+  (function(){
+    try{
+      var t = localStorage.getItem('auror-theme');
+      if(!t){ t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      if(t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    }catch(e){}
+  })();
+</script>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* =========================================================
+     Layout shell — uses tokens.css
+     ========================================================= */
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family: var(--auror-font);
+    background: var(--auror-bg);
+    color: var(--auror-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a{ color: inherit; }
+
+  /* ---- Top header: floating card, Quetza pattern ---- */
+  .dsHeaderRail{
+    position: sticky; top: 0; z-index: 50;
+    background: transparent;
+    padding: 10px 10px 16px;
+    pointer-events: none;
+  }
+  .dsHeaderRail::before{
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom,
+      var(--auror-bg) 0%,
+      var(--auror-bg) 60%,
+      color-mix(in srgb, var(--auror-bg) 70%, transparent) 80%,
+      transparent 100%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .dsHeaderRail > *{ pointer-events: auto; }
+  .dsHeader{
+    position: relative;
+    height: 48px;
+    background: var(--auror-card);
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-sm);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .dsBrand{
+    display:flex; align-items:center; gap:10px;
+    font-weight:700; letter-spacing:.3px; font-size: 15px;
+    color: var(--auror-ink); min-width: 0;
+  }
+  .dsBrandMark{
+    width: 28px; height: 28px; border-radius: var(--auror-r);
+    background: var(--auror-ink);
+    color: #fff;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 13px; letter-spacing: -.02em;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .dsBrandMark img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+  [data-theme="dark"] .dsBrandMark{ background: #fff; color: var(--auror-ink); }
+  .dsBrand .tag{
+    font-size: 11px; padding: 4px 8px; border-radius: var(--auror-r);
+    border: 1px solid var(--auror-line); color: var(--auror-muted);
+    background: var(--surface-raised); font-weight: 600;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .dsHeader nav{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; gap: 2px; flex-wrap: nowrap; overflow-x: auto;
+    font-size: 12px;
+    scrollbar-width: none;
+  }
+  .dsHeader nav::-webkit-scrollbar{ display: none; }
+  .dsHeader nav a{
+    text-decoration: none;
+    color: var(--auror-muted);
+    padding: 6px 10px; border-radius: var(--auror-r);
+    white-space: nowrap;
+    transition: background var(--auror-dur-fast) ease, color var(--auror-dur-fast) ease;
+  }
+  .dsHeader nav a:hover{ background: var(--auror-bg); color: var(--auror-ink); }
+  .dsHeaderRight{
+    display:flex; align-items:center; gap: 8px;
+    font-size: 12px; color: var(--auror-muted);
+    flex-shrink: 0;
+  }
+  .verTag{
+    font-size: 11px; padding: 4px 8px;
+    border: 1px solid var(--auror-line); border-radius: var(--auror-r);
+    background: var(--surface-raised); color: var(--auror-ink-2);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .verTag .dot{
+    width:6px; height:6px; border-radius: 2px;
+    background: var(--auror-brand);
+  }
+
+  .themeToggle{
+    width: 32px; height: 32px;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--auror-line);
+    background: var(--surface-raised);
+    color: var(--auror-ink-2);
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: background var(--auror-dur-fast) ease, color var(--auror-dur-fast) ease, border-color var(--auror-dur-fast) ease;
+  }
+  .themeToggle:hover{ background: var(--surface-sunken); color: var(--auror-ink); }
+  [data-theme="dark"] .themeToggle{ background: var(--surface-raised); color: var(--auror-ink); border-color: var(--auror-line); }
+  [data-theme="dark"] .themeToggle:hover{ background: var(--surface-sunken); color: var(--auror-ink); }
+  .themeToggle .ic{ width: 16px; height: 16px; }
+  .themeToggle .ic-moon{ display: none; }
+  [data-theme="dark"] .themeToggle .ic-sun{ display: none; }
+  [data-theme="dark"] .themeToggle .ic-moon{ display: block; }
+
+  /* Smooth surface flip when toggling */
+  body, .card, .dsHeader, .heroCopy, .heroVis, .aurorBtn, .aurorInput, .aurorTextInput,
+  .verTag, .themeToggle, .toolBtn, .iconCell, .iconBtnSm, .layerItemDemo, .shadowTile,
+  .voiceCol, .inspectorMock, .ctxDemo, .tokenCell{
+    transition: background var(--auror-dur-slow) ease, border-color var(--auror-dur-slow) ease, color var(--auror-dur-slow) ease;
+  }
+
+  /* ---- Page frame ---- */
+  main.ds{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+  }
+
+  /* ---- Hero ---- */
+  .hero{
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+    margin-bottom: 48px;
+  }
+  .heroCopy{
+    background: var(--auror-card);
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    padding: 36px;
+    box-shadow: var(--auror-shadow-md);
+    display:flex; flex-direction:column; justify-content: space-between;
+    gap: 24px;
+  }
+  .heroEyebrow{
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--auror-brand-dark); font-weight: 700;
+  }
+  .heroTitle{
+    font-size: var(--auror-fs-40);
+    line-height: var(--auror-lh-tight);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin: 12px 0 0;
+  }
+  .heroTitle .accent{ color: var(--auror-brand-dark); }
+  .heroLede{
+    margin-top: 14px; font-size: 15px; line-height: var(--auror-lh-body);
+    color: var(--auror-ink-2); max-width: 52ch;
+  }
+  .heroMeta{
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    border-top: 1px dashed var(--auror-line);
+    padding-top: 18px;
+  }
+  .heroMeta dt{ font-size: 10px; letter-spacing:.12em; text-transform:uppercase; color: var(--auror-muted); margin-bottom: 4px; }
+  .heroMeta dd{ margin: 0; font-size: 13px; font-weight: 600; }
+
+  .heroVis{
+    background: var(--auror-card);
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-md);
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .heroVisTop{
+    height: 32px;
+    border-bottom: 1px solid var(--auror-line);
+    display:flex; align-items:center; gap:10px;
+    padding: 0 12px;
+    font-size: 11px; color: var(--auror-muted);
+  }
+  .heroVisTop .dsTag{
+    font-size:10px; padding:3px 8px; border:1px solid var(--auror-line);
+    border-radius: var(--auror-r); background: var(--surface-raised); color: var(--auror-ink-2);
+  }
+  .heroVisCanvas{
+    background: var(--auror-canvas);
+    background-image:
+      linear-gradient(to right, var(--auror-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--auror-grid) 1px, transparent 1px);
+    background-size: 14px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .heroVisCanvas svg{
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    color: var(--auror-grid-strong);
+  }
+  .heroVisCanvas .accentLine{ color: var(--auror-brand-dark); }
+  .heroBadgeRow{
+    position: absolute; left: 14px; bottom: 14px; right: 14px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .heroBadgeRow .badge{
+    font-size: 11px; padding: 4px 10px;
+    border-radius: var(--auror-r);
+    background: rgba(255,255,255,.92); border: 1px solid var(--auror-line);
+    color: var(--auror-ink-2); backdrop-filter: blur(4px);
+  }
+
+  /* ---- Section ---- */
+  section.dsSec{
+    margin-top: 56px;
+  }
+  .secHead{
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 24px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .secEyebrow{
+    font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--auror-muted); font-weight: 700;
+  }
+  .secTitle{
+    font-size: var(--auror-fs-28); line-height: var(--auror-lh-tight);
+    margin: 6px 0 0; font-weight: 800; letter-spacing: -.01em;
+  }
+  .secLede{
+    margin: 0; max-width: 56ch;
+    color: var(--auror-ink-2); font-size: 14px;
+    line-height: var(--auror-lh-body);
+  }
+
+  /* Generic "card" container used in showcases */
+  .card{
+    background: var(--auror-card);
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-md);
+    overflow: hidden;
+  }
+  .cardHeader{
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--auror-line);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .cardHeader h3{ margin:0; font-size: var(--auror-fs-14); font-weight: 700; }
+  .cardHeader .small{ color: var(--auror-muted); font-size: var(--auror-fs-12); }
+  .cardBody{ padding: 18px; }
+
+  /* ---- COLOR SWATCHES ---- */
+  .palette{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+    gap: 12px;
+  }
+  .swatch{
+    border-radius: var(--auror-r);
+    overflow: hidden;
+    border: 1px solid var(--auror-line);
+    background: var(--surface-raised);
+    display: flex; flex-direction: column;
+  }
+  .swatchTop{
+    height: 86px; position: relative;
+    display: flex; align-items: flex-end; padding: 10px;
+  }
+  .swatchTop .ring{
+    position: absolute; top: 10px; right: 10px;
+    width: 18px; height: 18px; border-radius: 2px;
+    background: rgba(255,255,255,.6); border: 1px solid rgba(0,0,0,.06);
+    backdrop-filter: blur(2px);
+  }
+  .swatch .meta{ padding: 10px 12px; }
+  .swatch .name{ font-size: 12px; font-weight: 700; }
+  .swatch .hex{
+    font-family: var(--auror-mono); font-size: 11px;
+    color: var(--auror-muted); margin-top: 3px;
+  }
+  .swatch .role{ font-size: 11px; color: var(--auror-muted); margin-top: 2px; }
+
+  /* ---- TYPE SPECIMENS ---- */
+  .typeStack{ display: flex; flex-direction: column; gap: 0; }
+  .typeRow{
+    display: grid;
+    grid-template-columns: 110px 1fr 200px;
+    gap: 16px; align-items: end;
+    padding: 22px 0;
+    border-top: 1px dashed var(--auror-line);
+  }
+  .typeRow:first-child{ border-top: 0; padding-top: 4px; }
+  .typeRow .lbl{ font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--auror-muted); font-weight: 700; }
+  .typeRow .specimen{ color: var(--auror-ink); }
+  .typeRow .meta{ font-family: var(--auror-mono); font-size: 11px; color: var(--auror-muted); text-align: right; }
+
+  .display{ font-size: var(--auror-fs-40); font-weight: 800; letter-spacing: -.02em; line-height: var(--auror-lh-tight); }
+  .h1Spec{ font-size: var(--auror-fs-28); font-weight: 800; letter-spacing: -.01em; line-height: var(--auror-lh-tight); }
+  .h2Spec{ font-size: var(--auror-fs-20); font-weight: 700; line-height: 1.25; }
+  .h3Spec{ font-size: var(--auror-fs-16); font-weight: 700; line-height: var(--auror-lh-snug); }
+  .bodySpec{ font-size: var(--auror-fs-14); line-height: var(--auror-lh-body); color: var(--auror-ink-2); }
+  .smallSpec{ font-size: var(--auror-fs-12); color: var(--auror-muted); line-height: var(--auror-lh-snug); }
+  .monoSpec{ font-family: var(--auror-mono); font-variant-numeric: tabular-nums; font-size: var(--auror-fs-12); color: var(--auror-ink-2); }
+  .kbd{ font-variant-numeric: tabular-nums; }
+  .uppercaseSpec{ font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--auror-muted); font-weight: 700; }
+
+  /* ---- TOKEN GRIDS ---- */
+  .tokenGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+    gap: 12px;
+  }
+  .tokenCell{
+    border: 1px solid var(--auror-line); border-radius: var(--auror-r);
+    background: var(--surface-raised); padding: 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .tokenCell .demo{ display: grid; place-items: center; height: 70px; background: var(--auror-bg); border-radius: var(--auror-r); }
+  .tokenCell .name{ font-size: 12px; font-weight: 700; }
+  .tokenCell .val{ font-family: var(--auror-mono); font-size: 11px; color: var(--auror-muted); }
+
+  /* ---- App-style components: BUTTONS / INPUTS / SELECTS / TAGS / KBD ---- */
+  /* These mirror /css/ui.css verbatim so what you see is what ships */
+  .aurorBtn{
+    border: 1px solid var(--auror-line);
+    background: var(--surface-raised); color: var(--auror-ink);
+    padding: 10px 12px; border-radius: var(--auror-r);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; white-space: nowrap; line-height: 1.1;
+    transition: transform var(--auror-dur-fast) ease, background var(--auror-dur-base) ease, border-color var(--auror-dur-base) ease;
+    font-family: inherit; font-size: 13px;
+  }
+  .aurorBtn:hover{ background: var(--surface-sunken); }
+  .aurorBtn:active{ transform: translateY(1px); }
+  .aurorBtn.primary{
+    background: var(--auror-brand);
+    border-color: var(--auror-brand-dark);
+    color: var(--auror-ink); font-weight: 600;
+  }
+  .aurorBtn.primary:hover{ background: var(--accent); filter: brightness(1.05); }
+  .aurorBtn.danger{
+    background: var(--surface-raised);
+    border-color: var(--auror-danger-soft);
+    color: var(--auror-danger);
+  }
+  .aurorBtn.active{
+    box-shadow: var(--auror-focus);
+    border-color: var(--auror-brand-ring);
+  }
+  .aurorBtn[disabled]{ opacity: .5; cursor: not-allowed; }
+
+  .btnIco{
+    display: inline-flex; width: 20px; height: 20px;
+    align-items: center; justify-content: center;
+    color: currentColor;
+  }
+  .btnIco svg{ width: 20px; height: 20px; display: block; overflow: visible; }
+
+  .aurorInput, .aurorSelect{
+    width: 100%;
+    height: 36px;
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    padding: 0 10px;
+    background: var(--surface-raised); color: var(--auror-ink);
+    font-family: inherit; font-size: 13px;
+    outline: none;
+  }
+  .aurorInput:focus, .aurorSelect:focus{
+    box-shadow: var(--auror-focus);
+    border-color: var(--auror-brand-ring);
+  }
+  .aurorLabel{
+    font-size: 12px; color: var(--auror-ink-2);
+    display: block; margin: 0 0 6px;
+  }
+
+  /* Toggle switch — defined in tokens.css */
+
+  .dsTag{
+    font-size: 12px; padding: 6px 10px;
+    border: 1px solid var(--auror-line); border-radius: var(--auror-r);
+    background: var(--surface-raised); color: var(--auror-ink-2);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .dsTag--brand{ background: var(--auror-brand-soft); border-color: var(--auror-brand-ring); color: var(--auror-ink); font-weight: 600; }
+  .dsTag--ghost{ background: transparent; }
+  .badgeSm{
+    font-size: 11px; padding: 4px 10px;
+    border: 1px solid var(--auror-line); border-radius: var(--auror-r);
+    background: var(--surface-raised); color: var(--auror-ink-2);
+  }
+  .kbd{
+    font-family: var(--auror-mono);
+    font-size: 11px;
+    padding: 4px 8px;
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    color: var(--auror-ink-2);
+    background: var(--surface-raised);
+  }
+
+  /* ---- ICON GRID ---- */
+  .iconGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
+    gap: 8px;
+  }
+  .iconCell{
+    border: 1px solid var(--auror-line); border-radius: var(--auror-r);
+    padding: 14px 10px;
+    background: var(--surface-raised);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    transition: background var(--auror-dur-base) ease, color var(--auror-dur-base) ease;
+  }
+  .iconCell:hover{ background: var(--auror-brand-tint); color: var(--auror-brand-dark); }
+  .iconCell svg{ width: 24px; height: 24px; }
+  .iconCell .nm{ font-size: 11px; color: var(--auror-muted); font-family: var(--auror-mono); }
+
+  /* ---- TOOL DOCK demo ---- */
+  .dockDemo{
+    display: inline-flex; flex-direction: column; gap: 10px;
+    padding: 10px 8px;
+    background: var(--auror-card); border:1px solid var(--auror-line);
+    border-radius: var(--auror-r); box-shadow: var(--auror-shadow-md);
+  }
+  .toolIconDemo{
+    width:44px; height:44px; border-radius: var(--auror-r);
+    border: 1px solid var(--auror-line);
+    background: var(--surface-sunken); color: var(--auror-ink); cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform var(--auror-dur-fast) ease, background var(--auror-dur-base) ease, box-shadow var(--auror-dur-base) ease;
+  }
+  .toolIconDemo:hover{ transform: translateY(-1px); box-shadow: var(--auror-shadow-sm); }
+  .toolIconDemo.active{
+    background: var(--auror-brand-soft);
+    border-color: var(--auror-brand-ring);
+    color: var(--auror-brand-dark);
+  }
+  .toolIconDemo svg{ width: 20px; height: 20px; }
+  .toolSepDemo{ width: 36px; height: 1px; background: var(--auror-line); margin: 4px 0; }
+
+  /* ---- LAYER LIST demo ---- */
+  .layerDemo{ display: flex; flex-direction: column; gap: 10px; }
+  .layerItemDemo{
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 8px 10px;
+    border: 1px solid var(--auror-line-soft); border-radius: var(--auror-r);
+    background: var(--surface-raised);
+  }
+  .layerItemDemo.isActive .layerName{ background: var(--auror-brand-soft); }
+  .layerItemDemo.isHidden .layerName{ opacity: .55; }
+  .layerLeft{ display: flex; align-items: center; gap: 8px; }
+  .colorDot{ width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.08); }
+  .layerName{
+    border:0; background: transparent;
+    font-weight: 600; font-size: 13px;
+    padding: 7px 10px; border-radius: var(--auror-r);
+  }
+  .layerActions{ display:flex; gap: 4px; }
+  .iconBtnSm{
+    width: 28px; height: 28px; padding:0;
+    border-radius: var(--auror-r);
+    border: 1px solid var(--auror-line);
+    background: var(--surface-raised); cursor: pointer;
+    display: grid; place-items: center;
+    color: var(--auror-ink-2);
+  }
+  .iconBtnSm:hover{ background: var(--auror-bg); }
+  .iconBtnSm svg{ width: 14px; height: 14px; }
+
+  /* ---- STATUSBAR demo ---- */
+  .statusDemo{
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 10px 14px;
+    background: var(--auror-card); border-top: 1px solid var(--auror-line);
+    border-radius: 0 0 var(--auror-r-xl) var(--auror-r-xl);
+    font-size: 12px; color: var(--auror-muted);
+  }
+  .statusDemo .group{ display:flex; align-items:center; gap:10px; }
+  .statusDemo .sep{ opacity: .4; }
+  .statusDemo .cmdField{
+    display:flex; align-items:center; gap:8px; flex: 1; max-width: 420px;
+  }
+  .statusDemo .cmdField input{
+    flex: 1; height: 32px; border:1px solid var(--auror-line);
+    border-radius: var(--auror-r); padding: 0 10px; font-family: var(--auror-mono); font-size: 12px;
+  }
+
+  /* ---- SPACING SCALE demo ---- */
+  .spaceRow{
+    display: grid; grid-template-columns: 80px 1fr 80px;
+    gap: 12px; align-items: center;
+    padding: 10px 0; border-top: 1px dashed var(--auror-line);
+  }
+  .spaceRow:first-child{ border-top: 0; }
+  .spaceRow .nm{ font-size: 12px; font-weight: 700; }
+  .spaceRow .bar{ height: 16px; background: var(--auror-brand); border-radius: var(--auror-r); }
+  .spaceRow .v{ font-family: var(--auror-mono); font-size: 11px; color: var(--auror-muted); text-align: right; }
+
+  /* ---- RADIUS demo ---- */
+  .radiusRow{ display:flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+  .radiusBox{
+    width: 84px; height: 84px;
+    background: var(--auror-brand-soft);
+    border: 1px solid var(--auror-brand-ring);
+    border-radius: var(--auror-r);
+    display: grid; place-items: center;
+    color: var(--auror-brand-dark); font-family: var(--auror-mono);
+    font-size: 11px;
+  }
+
+  /* ---- SHADOW demo ---- */
+  .shadowRow{ display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+  .shadowTile{
+    background: var(--surface-raised); border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r); padding: 18px;
+    display:flex; flex-direction:column; gap: 8px;
+    height: 110px; justify-content: flex-end;
+  }
+  .shadowTile .nm{ font-weight: 700; font-size: 12px; }
+  .shadowTile .v{ font-family: var(--auror-mono); font-size: 10px; color: var(--auror-muted); }
+
+  /* ---- VOICE / DOs DON'Ts ---- */
+  .voice{
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .voiceCol{
+    border: 1px solid var(--auror-line); border-radius: var(--auror-r);
+    background: var(--surface-raised); padding: 16px;
+  }
+  .voiceCol h4{
+    margin: 0 0 10px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .voiceCol.do h4{ color: var(--auror-success); }
+  .voiceCol.dont h4{ color: var(--auror-danger); }
+  .voiceList{ list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: var(--auror-lh-snug); }
+  .voiceList li{ display:flex; gap: 10px; align-items: flex-start; }
+  .voiceList .glyph{
+    width: 18px; height: 18px; border-radius: 2px;
+    flex: 0 0 18px;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+    color: #fff;
+  }
+  .voiceCol.do .glyph{ background: var(--auror-success); }
+  .voiceCol.dont .glyph{ background: var(--auror-danger); }
+
+  /* ---- LAYER COLOR PALETTE for CAD ---- */
+  .layerPalette{
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px;
+  }
+  .layerSwatch{
+    aspect-ratio: 1/1; border-radius: var(--auror-r);
+    border: 1px solid var(--auror-line);
+    display:grid; place-items: end; padding: 8px;
+    color: rgba(255,255,255,.95); font-family: var(--auror-mono);
+    font-size: 10px;
+  }
+
+  /* ---- INSPECTOR PANEL demo (full mock) ---- */
+  .inspectorMock{
+    width: 100%; max-width: 420px;
+    background: var(--auror-card);
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-md);
+    padding: 14px;
+  }
+  .inspectorTabs{
+    display: flex; gap: 8px;
+    border-bottom: 1px solid var(--auror-line);
+    padding-bottom: 10px; margin-bottom: 12px;
+  }
+  .inspectorTab{
+    border: 0; background: transparent; color: var(--auror-muted);
+    padding: 8px 10px; border-radius: var(--auror-r);
+    cursor: pointer; font-size: 13px; font-family: inherit;
+  }
+  .inspectorTab.active{ color: var(--auror-ink); background: var(--auror-brand-soft); font-weight: 600; }
+  .inspectorCard{
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    padding: 12px;
+    margin: 10px 0;
+    background: var(--surface-raised);
+  }
+  .inspectorCard .secT{ font-weight: 700; margin-bottom: 10px; font-size: 13px; }
+  .inspectorGrid2{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .inspectorRow{ display:flex; gap: 8px; margin-top: 10px; }
+  .inspectorRow .aurorBtn{ flex: 1; }
+
+  /* ---- COLOR SWATCH — rectangular sample matching the picker ---- */
+  .colorBigSwatch{
+    width: 36px; height: 36px; border-radius: var(--auror-r);
+    background: var(--auror-ink); border: 1px solid var(--auror-line);
+    cursor: pointer;
+  }
+  .hexInputDemo{
+    flex: 1; height: 36px; border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r); padding: 0 10px;
+    font-family: var(--auror-mono); font-size: 13px;
+  }
+
+  /* ---- CONTEXT MENU demo ---- */
+  .ctxDemo{
+    display: inline-block;
+    min-width: 200px;
+    background: var(--surface-raised);
+    border: 1px solid var(--auror-line-strong);
+    border-radius: var(--auror-r);
+    box-shadow: var(--auror-shadow-lg);
+    padding: 6px;
+  }
+  .ctxDemo button{
+    width: 100%; text-align: left; border: 0; background: transparent;
+    padding: 8px 10px; border-radius: var(--auror-r);
+    font-size: 13px; color: var(--auror-ink); cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    font-family: inherit;
+  }
+  .ctxDemo button:hover{ background: var(--surface-sunken); }
+  .ctxDemo .ctxSep{ height: 1px; margin: 6px 6px; background: var(--border-strong); }
+
+  /* ---- CANVAS sample ---- */
+  .canvasDemo{
+    background: var(--auror-canvas);
+    background-image:
+      linear-gradient(to right, var(--auror-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--auror-grid) 1px, transparent 1px);
+    background-size: 16px 16px;
+    border: 1px solid var(--auror-line);
+    border-radius: var(--auror-r);
+    height: 320px; position: relative; overflow: hidden;
+  }
+  .canvasDemo svg{ position: absolute; inset:0; width:100%; height:100%; }
+  .canvasOverlay{
+    position: absolute; left: 12px; bottom: 12px;
+    display: flex; gap: 8px;
+  }
+
+  /* ---- footer ---- */
+  .dsFooter{
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--auror-line);
+    font-size: 12px; color: var(--auror-muted);
+    display: flex; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* ---- responsive ---- */
+  @media (max-width: 900px){
+    .hero{ grid-template-columns: 1fr; }
+    .shadowRow{ grid-template-columns: repeat(2,1fr); }
+    .typeRow{ grid-template-columns: 90px 1fr; }
+    .typeRow .meta{ display:none; }
+    .voice{ grid-template-columns: 1fr; }
+    .layerPalette{ grid-template-columns: repeat(4,1fr); }
+  }
+</style>
+<link id="gfont-Roboto" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Caveat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Architects-Daughter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Permanent-Marker" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Dancing-Script" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Pacifico" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Righteous" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Righteous:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Bebas-Neue" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Abril-Fatface" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Dosis" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dosis:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Josefin-Sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Arvo" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arvo:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Bitter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Cabin" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cabin:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Lora" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Crimson-Text" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Libre-Baskerville" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Space-Grotesk" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Manrope" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-DM-Sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Karla" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Quicksand" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Fira-Sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Rubik" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Work-Sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Noto-Sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Inter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Open-Sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Lato" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Montserrat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Poppins" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Source-Sans-Pro" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Raleway" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Nunito" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Playfair-Display" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Merriweather" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Oswald" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-Ubuntu" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;600;700&amp;display=swap"><link id="gfont-PT-Sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@300;400;500;600;700&amp;display=swap"></head>
+
+<body style="font-family: Inter; background-color: rgba(0, 0, 0, 0);">
+
+<!-- ============= HEADER ============= -->
+<div class="dsHeaderRail">
+  <header class="dsHeader">
+    <div class="dsBrand">
+      <span class="dsBrandMark" id="brandMark" aria-hidden="true">A</span>
+      <span>AUROR</span>
+    </div>
+    <nav>
+      <a href="#foundations">Foundations</a>
+      <a href="#color">Color</a>
+      <a href="#type">Type</a>
+      <a href="#space">Space</a>
+      <a href="#shape">Shape</a>
+      <a href="#motion">Motion</a>
+      <a href="#icons">Icons</a>
+      <a href="#components">Components</a>
+      <a href="#patterns">Patterns</a>
+      <a href="#voice">Voice</a>
+    </nav>
+    <div class="dsHeaderRight">
+      <button class="themeToggle" type="button" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark">
+        <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="ic ic-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"></path></svg>
+      </button>
+      <a class="themeToggle" href="settings.html" aria-label="Settings" title="Settings" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--text-secondary);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </header>
+</div>
+
+<main class="ds">
+
+  <!-- ============= HERO ============= -->
+  <section class="hero">
+    <div class="heroCopy">
+      <div>
+        <div class="heroEyebrow">A lightweight 2D CAD — for the browser</div>
+        <h1 class="heroTitle">Drafting tools that <span class="accent">don't weigh a tonne.</span></h1>
+        <p class="heroLede">
+          AUROR is a small drafting engine with a clean JSON format and a friendly amber accent.
+          This system documents the existing UI vocabulary — surfaces, tokens, the tool dock, the
+          inspector — and the rules to extend it without losing the mark.
+        </p>
+      </div>
+      <dl class="heroMeta">
+        <div>
+          <dt>Audience</dt>
+          <dd>Hobbyist drafters &amp; tinkerers</dd>
+        </div>
+        <div>
+          <dt>Surface</dt>
+          <dd>Single-page, offline-first web app</dd>
+        </div>
+        <div>
+          <dt>Density</dt>
+          <dd>Workshop-dense, never noisy</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="heroVis" aria-label="AUROR drafting surface preview">
+      <div class="heroVisTop">
+        <span style="font-size:10px; font-weight:600; color: var(--auror-muted); letter-spacing:.04em; text-transform:uppercase;">Standalone · LINE</span>
+        <span style="margin-left:auto; font-family: var(--auror-mono);">x: 142.0  y: 88.5  ·  Zoom: 5</span>
+      </div>
+      <div class="heroVisCanvas">
+        <svg viewBox="0 0 400 280" preserveAspectRatio="xMidYMid meet">
+          <!-- Drawing: a small mechanical part outline -->
+          <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="60" y="80" width="220" height="120" rx="6"></rect>
+            <circle cx="110" cy="140" r="14"></circle>
+            <circle cx="230" cy="140" r="14"></circle>
+            <path d="M60 140 H280"></path>
+            <path d="M170 80 V200"></path>
+          </g>
+          <!-- Highlighted segment (amber accent) -->
+          <g fill="none" class="accentLine" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <path d="M60 80 L280 80"></path>
+            <circle cx="60" cy="80" r="3" fill="currentColor" stroke="none"></circle>
+            <circle cx="280" cy="80" r="3" fill="currentColor" stroke="none"></circle>
+          </g>
+          <!-- Dimension -->
+          <g fill="none" stroke="currentColor" stroke-width="1" opacity=".6">
+            <path d="M60 60 H280"></path>
+            <path d="M60 56 V64 M280 56 V64"></path>
+          </g>
+          <text x="170" y="52" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#374151">220.0 mm</text>
+        </svg>
+      </div>
+      <div class="heroBadgeRow">
+        <span class="badge">Layer 1 · 1.0 mm</span>
+        <span class="badge">Zoom 5 px/mm</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 1. FOUNDATIONS / PRINCIPLES ============= -->
+  <section id="foundations" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">01 — Foundations</div>
+        <h2 class="secTitle">Principles</h2>
+      </div>
+      <p class="secLede">Four rules that keep AUROR feeling like AUROR. Apply them when extending tools, panels, exports, or anything new.</p>
+    </div>
+
+    <div class="card">
+      <div class="cardBody" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+
+        <article class="tokenCell" style="gap:12px;">
+          <div class="demo" style="background: var(--auror-brand-tint); color: var(--auror-brand-dark); font-weight: 700;">01</div>
+          <div class="name">Geometry first</div>
+          <p class="smallSpec" style="margin:0;">Pixels serve the drawing. Chrome stays calm so the canvas stays loud. Avoid decoration that competes with strokes.</p>
+        </article>
+
+        <article class="tokenCell" style="gap:12px;">
+          <div class="demo" style="background: var(--auror-brand-tint); color: var(--auror-brand-dark); font-weight: 700;">02</div>
+          <div class="name">Lightweight, like the engine</div>
+          <p class="smallSpec" style="margin:0;">Single file, no install, no plugins. The UI matches: small surfaces, low file weight, fast paints, minimal motion.</p>
+        </article>
+
+        <article class="tokenCell" style="gap:12px;">
+          <div class="demo" style="background: var(--auror-brand-tint); color: var(--auror-brand-dark); font-weight: 700;">03</div>
+          <div class="name">Hackable defaults</div>
+          <p class="smallSpec" style="margin:0;">Tokens, JSON projects, plain CSS. Every choice should be readable at a glance and easy to fork.</p>
+        </article>
+
+        <article class="tokenCell" style="gap:12px;">
+          <div class="demo" style="background: var(--auror-brand-tint); color: var(--auror-brand-dark); font-weight: 700;">04</div>
+          <div class="name">Small mark energy</div>
+          <p class="smallSpec" style="margin:0;">Friendly, never cute. Italian-first, English-equal. A wink in the copy, never in the chrome.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 2. COLOR ============= -->
+  <section id="color" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">02 — Color</div>
+        <h2 class="secTitle">Palette</h2>
+      </div>
+      <p class="secLede">A single warm amber sits on a quiet warm-grey shell. Layer colors are a separate, expanded palette intended for user drawings — not UI chrome.</p>
+    </div>
+
+    <!-- Brand + neutrals -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader">
+        <h3>Core — UI chrome</h3>
+        <span class="small">Use for surfaces, ink, and the single brand accent</span>
+      </div>
+      <div class="cardBody">
+        <div class="palette">
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-brand);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Brand / Amber</div>
+              <div class="hex">#F5A000</div>
+              <div class="role">Primary actions, active tool, focus ring</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-brand-dark);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Brand / Dark</div>
+              <div class="hex">#D98C00</div>
+              <div class="role">Hover on primary, eyebrow text</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-brand-soft);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Brand / Soft</div>
+              <div class="hex">rgba(245,160,0,.16)</div>
+              <div class="role">Active tab/tool background</div>
+            </div>
+          </div>
+
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-ink);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Ink</div>
+              <div class="hex">#111827</div>
+              <div class="role">Body text, default stroke</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-ink-2);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Ink-2</div>
+              <div class="hex">#374151</div>
+              <div class="role">Header text, button label</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-muted);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Muted</div>
+              <div class="hex">#6B7280</div>
+              <div class="role">Helper text, placeholder, dim labels</div>
+            </div>
+          </div>
+
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-bg); border-bottom: 1px solid var(--auror-line);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Surface / App</div>
+              <div class="hex">#F3F5F7</div>
+              <div class="role">Page background</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-canvas); border-bottom: 1px solid var(--auror-line);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Surface / Canvas</div>
+              <div class="hex">#FAFAFA</div>
+              <div class="role">Drawing area</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-card); border-bottom: 1px solid var(--auror-line);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Surface / Card</div>
+              <div class="hex">#FFFFFF</div>
+              <div class="role">Panels, dropdowns, modals</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatchTop" style="background: var(--auror-line); border-bottom: 1px solid var(--auror-line);"><span class="ring"></span></div>
+            <div class="meta">
+              <div class="name">Line</div>
+              <div class="hex">#E5E7EB</div>
+              <div class="role">Borders, dividers, input outline</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State colors -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>State</h3><span class="small">Sparingly. Most messaging uses Ink/Muted.</span></div>
+      <div class="cardBody">
+        <div class="palette">
+          <div class="swatch"><div class="swatchTop" style="background: var(--auror-success);"><span class="ring"></span></div><div class="meta"><div class="name">Success</div><div class="hex">#15803D</div><div class="role">Confirmation toasts</div></div></div>
+          <div class="swatch"><div class="swatchTop" style="background: var(--auror-warn);"><span class="ring"></span></div><div class="meta"><div class="name">Warning</div><div class="hex">#B45309</div><div class="role">Snap conflicts, lossy export</div></div></div>
+          <div class="swatch"><div class="swatchTop" style="background: var(--auror-danger);"><span class="ring"></span></div><div class="meta"><div class="name">Danger</div><div class="hex">#B91C1C</div><div class="role">Delete actions, destructive states</div></div></div>
+          <div class="swatch"><div class="swatchTop" style="background: var(--auror-info);"><span class="ring"></span></div><div class="meta"><div class="name">Info</div><div class="hex">#1D4ED8</div><div class="role">Snap markers (perpendicular)</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer / drawing palette -->
+    <div class="card">
+      <div class="cardHeader">
+        <h3>Drawing palette — for layers, not UI</h3>
+        <span class="small">Pickable colors users assign to their geometry</span>
+      </div>
+      <div class="cardBody">
+        <div class="layerPalette">
+          <div class="layerSwatch" style="background:#111827;">#111827</div>
+          <div class="layerSwatch" style="background:#374151;">#374151</div>
+          <div class="layerSwatch" style="background:#b91c1c;">#B91C1C</div>
+          <div class="layerSwatch" style="background:var(--auror-clay);">#B15A3C</div>
+          <div class="layerSwatch" style="background:#f5a000; color:#3a2300;">#F5A000</div>
+          <div class="layerSwatch" style="background:#ffd166; color:#5a3d00;">#FFD166</div>
+          <div class="layerSwatch" style="background:var(--auror-fern);">#5B8C5A</div>
+          <div class="layerSwatch" style="background:#15803d;">#15803D</div>
+          <div class="layerSwatch" style="background:var(--auror-river);">#2F6F9F</div>
+          <div class="layerSwatch" style="background:#1d4ed8;">#1D4ED8</div>
+          <div class="layerSwatch" style="background:var(--auror-amethyst);">#6B4F9C</div>
+          <div class="layerSwatch" style="background:#a855f7;">#A855F7</div>
+          <div class="layerSwatch" style="background:#0f766e;">#0F766E</div>
+          <div class="layerSwatch" style="background:var(--auror-bone); color:#5a4a20;">#F3EAD8</div>
+          <div class="layerSwatch" style="background:#9ca3af;">#9CA3AF</div>
+          <div class="layerSwatch" style="background:#ffffff; color:#374151; border:1px dashed var(--auror-line);">#FFFFFF</div>
+        </div>
+        <p class="smallSpec" style="margin-top: 12px;">Drawing colors don't follow the chrome rules. The picker is the rectangular modal at <code class="kbd">#colorBackdrop</code> — defer to it instead of inventing new color UI inside panels.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 3. TYPE ============= -->
+  <section id="type" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">03 — Type</div>
+        <h2 class="secTitle">Typography</h2>
+      </div>
+      <p class="secLede">Inter for the entire app — one family, no exceptions. Shipped locally as a variable font (weight 100–900, optical size 14–32, plus a true italic). Numeric runs (coordinates, hex, command box) get tabular figures so columns line up without a second face.</p>
+    </div>
+
+    <div class="card">
+      <div class="cardBody">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 18px;">
+            <div class="uppercaseSpec" style="margin-bottom:6px;">Sans — UI &amp; body</div>
+            <div style="font-size: 28px; font-weight: 700; letter-spacing: -.01em;">Inter Variable</div>
+            <div class="monoSpec" style="margin-top: 6px;">Local TTF · axes <code class="kbd">wght 100–900</code>, <code class="kbd">opsz 14–32</code></div>
+            <p class="smallSpec" style="margin-top: 10px;">Self-hosted from <code class="kbd">/fonts</code>. No external request, works offline — the same constraint as AUROR itself.</p>
+            <div style="display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; align-items: baseline;">
+              <span class="kbd" style="font-weight: 300;">300</span>
+              <span class="kbd" style="font-weight: 400;">400</span>
+              <span class="kbd" style="font-weight: 500;">500</span>
+              <span class="kbd" style="font-weight: 600;">600</span>
+              <span class="kbd" style="font-weight: 700;">700</span>
+              <span class="kbd" style="font-weight: 800;">800</span>
+              <span class="kbd" style="font-weight: 900;">900</span>
+              <span class="kbd" style="font-weight: 500; font-style: italic;">italic</span>
+            </div>
+          </div>
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 18px;">
+            <div class="uppercaseSpec" style="margin-bottom:6px;">Tabular — coords &amp; codes</div>
+            <div style="font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums;">142.0  88.5</div>
+            <div class="monoSpec" style="margin-top: 6px;">Inter · weight 500 · <code class="kbd">font-variant-numeric: tabular-nums</code></div>
+            <p class="smallSpec" style="margin-top: 10px;">Same family, just lined-up digits. Coordinates, hex, command box, JSON snippets — all Inter, no second face.</p>
+          </div>
+        </div>
+
+        <!-- Variable axes playground -->
+        <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 20px 22px; margin-bottom: 24px; background: linear-gradient(180deg, #fff 0%, var(--auror-bg) 100%);">
+          <div class="uppercaseSpec" style="margin-bottom: 12px;">Variable axes — live</div>
+          <div id="vfDemo" style="font-family: 'Inter', var(--auror-font); font-size: 64px; line-height: 1.05; letter-spacing: -.02em; color: var(--auror-ink); font-variation-settings: 'wght' 600, 'opsz' 28; padding: 8px 0 16px; text-wrap: balance;">Disegnare è togliere.</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+            <label style="display: grid; gap: 6px;">
+              <span class="uppercaseSpec" style="display: flex; justify-content: space-between;"><span>wght</span><span class="monoSpec" id="wghtVal" style="font-weight: 500;">600</span></span>
+              <input type="range" id="wghtSlider" min="100" max="900" step="1" value="600" style="accent-color: var(--auror-brand); width: 100%;">
+            </label>
+            <label style="display: grid; gap: 6px;">
+              <span class="uppercaseSpec" style="display: flex; justify-content: space-between;"><span>opsz</span><span class="monoSpec" id="opszVal" style="font-weight: 500;">28</span></span>
+              <input type="range" id="opszSlider" min="14" max="32" step="0.5" value="28" style="accent-color: var(--auror-brand); width: 100%;">
+            </label>
+          </div>
+          <p class="smallSpec" style="margin: 14px 0 0;">One file, every weight. <code class="kbd">opsz</code> is automatic in modern browsers (it follows <code class="kbd">font-size</code>) but you can pin it for headlines that need a tighter, sharper cut.</p>
+        </div>
+        <script>
+          (function(){
+            var d = document.getElementById('vfDemo');
+            var w = document.getElementById('wghtSlider');
+            var o = document.getElementById('opszSlider');
+            var wv = document.getElementById('wghtVal');
+            var ov = document.getElementById('opszVal');
+            function paint(){
+              d.style.fontVariationSettings = "'wght' " + w.value + ", 'opsz' " + o.value;
+              wv.textContent = w.value;
+              ov.textContent = o.value;
+            }
+            w.addEventListener('input', paint);
+            o.addEventListener('input', paint);
+          })();
+        </script>
+
+        <div class="typeStack">
+          <div class="typeRow">
+            <div class="lbl">Display</div>
+            <div class="specimen display">Drafting tools that don't weigh a tonne.</div>
+            <div class="meta">40 / 1.1 / 800 / -.02em</div>
+          </div>
+          <div class="typeRow">
+            <div class="lbl">H1</div>
+            <div class="specimen h1Spec">Inspector / Storico</div>
+            <div class="meta">28 / 1.1 / 800 / -.01em</div>
+          </div>
+          <div class="typeRow">
+            <div class="lbl">H2</div>
+            <div class="specimen h2Spec">Selezione</div>
+            <div class="meta">20 / 1.25 / 700</div>
+          </div>
+          <div class="typeRow">
+            <div class="lbl">H3 / SecTitle</div>
+            <div class="specimen h3Spec">Snap e griglia</div>
+            <div class="meta">16 / 1.35 / 700</div>
+          </div>
+          <div class="typeRow">
+            <div class="lbl">Body</div>
+            <div class="specimen bodySpec">AUROR uses a very simple JSON geometry format. Easy to debug, easy to generate, easy to convert from other formats.</div>
+            <div class="meta">14 / 1.5 / 400</div>
+          </div>
+          <div class="typeRow">
+            <div class="lbl">Small / Help</div>
+            <div class="specimen smallSpec">Suggerimento: se lo snap prende troppo, disattiva Perpendicolare o Tangente.</div>
+            <div class="meta">12 / 1.35 / 400</div>
+          </div>
+          <div class="typeRow">
+            <div class="lbl">Eyebrow</div>
+            <div class="specimen uppercaseSpec">Tipi di snap</div>
+            <div class="meta">10 / .14em / 700 / upper</div>
+          </div>
+          <div class="typeRow">
+            <div class="lbl">Tabular</div>
+            <div class="specimen monoSpec">x: 142.0  y:  88.5    @50,0    #F5A000</div>
+            <div class="meta">12 / Inter 400 / tabular-nums</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 4. SPACE ============= -->
+  <section id="space" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">04 — Space</div>
+        <h2 class="secTitle">Spacing scale</h2>
+      </div>
+      <p class="secLede">A 4-pixel base. Most of the app moves in 8/10/12 increments — gaps inside panels, padding around sections. 14 and 16 are reserved for panel breathing room.</p>
+    </div>
+
+    <div class="card">
+      <div class="cardBody">
+        <div class="spaceRow"><div class="nm">s-1</div><div><div class="bar" style="width: 4px;"></div></div><div class="v">4 px</div></div>
+        <div class="spaceRow"><div class="nm">s-2</div><div><div class="bar" style="width: 8px;"></div></div><div class="v">8 px</div></div>
+        <div class="spaceRow"><div class="nm">s-3</div><div><div class="bar" style="width: 10px;"></div></div><div class="v">10 px</div></div>
+        <div class="spaceRow"><div class="nm">s-4</div><div><div class="bar" style="width: 12px;"></div></div><div class="v">12 px</div></div>
+        <div class="spaceRow"><div class="nm">s-5</div><div><div class="bar" style="width: 14px;"></div></div><div class="v">14 px</div></div>
+        <div class="spaceRow"><div class="nm">s-6</div><div><div class="bar" style="width: 16px;"></div></div><div class="v">16 px</div></div>
+        <div class="spaceRow"><div class="nm">s-8</div><div><div class="bar" style="width: 24px;"></div></div><div class="v">24 px</div></div>
+        <div class="spaceRow"><div class="nm">s-10</div><div><div class="bar" style="width: 32px;"></div></div><div class="v">32 px</div></div>
+        <div class="spaceRow"><div class="nm">s-12</div><div><div class="bar" style="width: 48px;"></div></div><div class="v">48 px</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 5. SHAPE ============= -->
+  <section id="shape" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">05 — Shape</div>
+        <h2 class="secTitle">Radii &amp; elevation</h2>
+      </div>
+      <p class="secLede">Generously rounded but never blobby. Shadows are soft and warm, never theatrical — they hint at elevation without faking glass.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Radii</h3><span class="small">One radius for everything</span></div>
+      <div class="cardBody">
+        <div class="radiusRow">
+          <div class="radiusBox" style="border-radius: var(--auror-r);">10</div>
+          <div class="radiusBox" style="border-radius: var(--auror-r); width: 130px;">10 — same</div>
+          <div class="radiusBox" style="border-radius: var(--auror-r); width: 180px;">10 — always 10</div>
+        </div>
+        <p class="smallSpec" style="margin-top: 14px;">
+          <strong>Use:</strong> One radius — <code class="kbd">10 px</code> — for everything. Buttons, inputs, cards, panels, modals, badges, tags, the language select, the layer chip. No pills. No mixed corners. The colour swatch keeps its <code class="kbd">50%</code> circle because it represents a colour token, not a UI shape.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHeader"><h3>Elevation</h3><span class="small">Three steps, used in this order</span></div>
+      <div class="cardBody">
+        <div class="shadowRow">
+          <div class="shadowTile" style="box-shadow: none;">
+            <div class="nm">none</div><div class="v">flat</div>
+            <p class="smallSpec" style="margin:0;">Inputs, dock buttons, default chrome.</p>
+          </div>
+          <div class="shadowTile" style="box-shadow: var(--auror-shadow-sm);">
+            <div class="nm">sm</div><div class="v">0 6 14 / .10</div>
+            <p class="smallSpec" style="margin:0;">Tool hover, swatch, layer chip.</p>
+          </div>
+          <div class="shadowTile" style="box-shadow: var(--auror-shadow-md);">
+            <div class="nm">md</div><div class="v">0 10 24 / .08</div>
+            <p class="smallSpec" style="margin:0;">Panels, modals, the inspector.</p>
+          </div>
+          <div class="shadowTile" style="box-shadow: var(--auror-shadow-lg);">
+            <div class="nm">lg</div><div class="v">0 12 30 / .18</div>
+            <p class="smallSpec" style="margin:0;">Floating menus, ctx menu, tooltips.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 6. MOTION ============= -->
+  <section id="motion" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">06 — Motion</div>
+        <h2 class="secTitle">Motion is optional</h2>
+      </div>
+      <p class="secLede">Motion confirms an action — it never narrates one. Three durations, one curve. If a transition longer than 220 ms feels right, it's probably wrong for AUROR.</p>
+    </div>
+
+    <div class="card">
+      <div class="cardBody">
+        <div class="tokenGrid">
+          <div class="tokenCell">
+            <div class="demo"><div class="motionDemo m-fast">FAST</div></div>
+            <div class="name">--auror-dur-fast</div>
+            <div class="val">80 ms · transform on press, dock active flash</div>
+          </div>
+          <div class="tokenCell">
+            <div class="demo"><div class="motionDemo m-base">BASE</div></div>
+            <div class="name">--auror-dur-base</div>
+            <div class="val">120 ms · button bg, tab swap, hover state</div>
+          </div>
+          <div class="tokenCell">
+            <div class="demo"><div class="motionDemo m-slow">SLOW</div></div>
+            <div class="name">--auror-dur-slow</div>
+            <div class="val">220 ms · panel reveal, modal fade</div>
+          </div>
+          <div class="tokenCell">
+            <div class="demo" style="color: var(--auror-muted); font-family: var(--auror-mono); font-size: 12px;">cubic-bezier(.2,.7,.2,1)</div>
+            <div class="name">--auror-ease</div>
+            <div class="val">A single ease for the whole app.</div>
+          </div>
+        </div>
+
+        <p class="smallSpec" style="margin-top: 18px;">
+          <strong>Don'ts:</strong> No bounces, no springs, no parallax. Reduced-motion users get instant transitions — wrap any new animation in <code class="kbd">@media (prefers-reduced-motion)</code>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    /* small bespoke motion demos */
+    .motionDemo{
+      width: 70%; height: 38px; border-radius: var(--auror-r);
+      background: var(--auror-brand); color: var(--auror-ink);
+      display: grid; place-items: center; font-size: 12px; font-weight: 700;
+      transition-property: transform, background;
+      transition-timing-function: var(--auror-ease);
+      cursor: default;
+    }
+    .m-fast{ transition-duration: 80ms; }
+    .m-base{ transition-duration: 120ms; }
+    .m-slow{ transition-duration: 220ms; }
+    .tokenCell:hover .motionDemo{ transform: translateX(20px); background: var(--auror-brand-dark); }
+    @media (prefers-reduced-motion: reduce){
+      .motionDemo{ transition: none; }
+    }
+  </style>
+
+  <!-- ============= 7. ICONOGRAPHY ============= -->
+  <section id="icons" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">07 — Iconography</div>
+        <h2 class="secTitle">Icons</h2>
+      </div>
+      <p class="secLede">All icons are inline SVG, drawn on a 24×24 grid with a 2 px stroke, round caps, round joins, and <code class="kbd">currentColor</code>. They live next to the JSX so they're easy to read and edit.</p>
+    </div>
+
+    <div class="card">
+      <div class="cardHeader">
+        <h3>Tool icons (24×24, stroke 2)</h3>
+        <span class="small">Reused from <code class="kbd">index.html</code></span>
+      </div>
+      <div class="cardBody">
+        <div class="iconGrid">
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M5 3.5l13 7.5-5.5 1.6 3 6.5-2.7 1.3-3-6.5-4.3 4.4z"></path></svg><div class="nm">select</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19L19 5"></path></svg><div class="nm">line</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="6" width="14" height="12" rx="1"></rect></svg><div class="nm">rect</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="7" ry="5"></ellipse></svg><div class="nm">ellipse</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"></circle></svg><div class="nm">circle</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18a10 10 0 0 1 16-8"></path><circle cx="4" cy="18" r="1.4" fill="currentColor"></circle><circle cx="20" cy="10" r="1.4" fill="currentColor"></circle></svg><div class="nm">arc</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17l5-6 4 3 5-7"></path><circle cx="5" cy="17" r="1.5" fill="currentColor"></circle><circle cx="10" cy="11" r="1.5" fill="currentColor"></circle><circle cx="14" cy="14" r="1.5" fill="currentColor"></circle><circle cx="19" cy="7" r="1.5" fill="currentColor"></circle></svg><div class="nm">polyline</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19l14-14"></path><circle cx="12" cy="12" r="2"></circle></svg><div class="nm">break</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19l14-14"></path><path d="M9 15l-4 4"></path><path d="M15 9l4-4"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="7" r="2"></circle></svg><div class="nm">katana</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5v14"></path><path d="M13 5v14"></path><path d="M17 7h2v10h-2"></path></svg><div class="nm">offset</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7v10M18 7v10"></path><path d="M7 12h10"></path><path d="M9 10l-2 2 2 2M15 10l2 2-2 2"></path></svg><div class="nm">dimension</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 7h12M12 7v14"></path></svg><div class="nm">text</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="12" rx="2"></rect><path d="M7 15l3-3 4 4 3-3 2 2"></path><circle cx="9" cy="10" r="1.2" fill="currentColor"></circle></svg><div class="nm">image</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"></path><path d="M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"></path></svg><div class="nm">pan</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="14" height="10" rx="2"></rect><path d="M8 14h8" stroke-linecap="round"></path></svg><div class="nm">command</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h11a5 5 0 0 1 0 10H9"></path><path d="M8 5 4 9l4 4"></path></svg><div class="nm">undo</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9H9a5 5 0 0 0 0 10h6"></path><path d="M16 5l4 4-4 4"></path></svg><div class="nm">redo</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h4"></path><path d="M6 7h12l-1 14H7L6 7z"></path><path d="M10 11v6M14 11v6"></path></svg><div class="nm">delete</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="10" height="10" rx="2"></rect><path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1"></path></svg><div class="nm">copy</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l1 2h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2l1-2z"></path><path d="M9 8h6"></path></svg><div class="nm">paste</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path><path d="M7 4v6h10"></path><path d="M8 20v-6h8v6"></path></svg><div class="nm">save</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"></path><path d="M12 4v10"></path><path d="M8 10l4 4 4-4"></path></svg><div class="nm">load</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v12"></path><path d="M7 13l5 5 5-5"></path></svg><div class="nm">send-back</div></div>
+          <div class="iconCell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V7"></path><path d="M7 11l5-5 5 5"></path></svg><div class="nm">bring-fwd</div></div>
+        </div>
+        <p class="smallSpec" style="margin-top: 16px;">
+          <strong>Adding a new icon:</strong> 24×24 viewBox, <code class="kbd">stroke="currentColor"</code>, <code class="kbd">stroke-width="2"</code>, round caps + joins. Fill only for tiny dots/markers — use the same <code class="kbd">currentColor</code>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 8. COMPONENTS ============= -->
+  <section id="components" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">08 — Components</div>
+        <h2 class="secTitle">Components</h2>
+      </div>
+      <p class="secLede">The building blocks that ship today, plus the spec for how they should behave when extended.</p>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Button</h3><span class="small">36–40 px tall · radius 10 · border 1 px line · gap 8 between icon + label</span></div>
+      <div class="cardBody">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <button class="aurorBtn primary"><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></span><span>Applica</span></button>
+          <button class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="10" height="10" rx="2"></rect><path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1"></path></svg></span><span>Copia</span></button>
+          <button class="aurorBtn danger"><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h4"></path><path d="M6 7h12l-1 14H7L6 7z"></path><path d="M10 11v6M14 11v6"></path></svg></span><span>Elimina</span></button>
+          <button class="aurorBtn" disabled=""><span>Disabilitato</span></button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px;">
+          <button class="aurorBtn primary">Salva progetto</button>
+          <button class="aurorBtn">DXF</button>
+          <button class="aurorBtn">SVG</button>
+          <button class="aurorBtn">PNG selezione</button>
+        </div>
+        <p class="smallSpec" style="margin-top: 14px;">
+          <strong>Hierarchy:</strong> One <code class="kbd">.primary</code> per visible card. Default buttons are neutral; danger is reserved for irreversible actions. Stati binari (Snap, Ortho, Griglia) usano lo <code class="kbd">.aurorSwitch</code>, mai un button. Icon + label in italiano nelle barre principali; icon-only solo nel dock e nei menu di contesto.
+        </p>
+      </div>
+    </div>
+
+    <!-- INPUTS -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Inputs &amp; selects</h3><span class="small">Height 36 · radius 10 · 10 px horizontal padding</span></div>
+      <div class="cardBody">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+          <div>
+            <label class="aurorLabel">Layer</label>
+            <select class="aurorSelect">
+              <option>Layer 1</option>
+              <option>Construction</option>
+              <option>Hidden</option>
+            </select>
+          </div>
+          <div>
+            <label class="aurorLabel">Spessore</label>
+            <input class="aurorInput" type="number" value="1.0">
+          </div>
+          <div>
+            <label class="aurorLabel">Dash</label>
+            <input class="aurorInput" type="text" placeholder="es: 6,4">
+          </div>
+          <div>
+            <label class="aurorLabel">Rotazione (deg)</label>
+            <input class="aurorInput" type="number" value="0">
+          </div>
+          <div>
+            <label class="aurorLabel">Colore</label>
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <button class="colorBigSwatch" aria-label="Apri color picker"></button>
+              <input class="hexInputDemo" type="text" value="#111827">
+            </div>
+          </div>
+          <div>
+            <label class="aurorLabel">Comando</label>
+            <input class="aurorInput" type="text" placeholder="@50,0" style="font-family: var(--auror-mono);">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAGS / TOGGLES / KBD -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Tag, toggle, keyboard</h3><span class="small">Stato, modalità, scorciatoie</span></div>
+      <div class="cardBody" style="display: grid; gap: 18px;">
+        <div>
+          <div class="uppercaseSpec" style="margin-bottom: 8px;">Tag — etichette statiche</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <span class="dsTag">Standalone</span>
+            <span class="dsTag dsTag--brand">LINE</span>
+            <span class="dsTag dsTag--ghost">Layer 1</span>
+            <span class="badgeSm">x: 142.0  y: 88.5</span>
+          </div>
+          <p class="smallSpec" style="margin-top: 10px;">Tag are <strong>read-only</strong>: nome layer attivo, modalità corrente, modalità app. Mai usarli come pulsanti — se l'utente ci clicca sopra, è un bug.</p>
+        </div>
+        <div>
+          <div class="uppercaseSpec" style="margin-bottom: 8px;">Toggle — on/off interattivi</div>
+          <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:center;">
+            <label class="aurorSwitch"><input type="checkbox" checked=""><span class="track"><span class="thumb"></span></span><span>Snap</span></label>
+            <label class="aurorSwitch"><input type="checkbox"><span class="track"><span class="thumb"></span></span><span>Ortho</span></label>
+            <label class="aurorSwitch"><input type="checkbox" checked=""><span class="track"><span class="thumb"></span></span><span>Griglia</span></label>
+            <label class="aurorSwitch"><input type="checkbox"><span class="track"><span class="thumb"></span></span><span>Costruzione</span></label>
+          </div>
+          <p class="smallSpec" style="margin-top: 10px;">Lo switch è la sola forma autorizzata per stati binari. <strong>Mai</strong> riusare un button "active" come toggle: l'utente non distingue tra azione e stato.</p>
+        </div>
+        <div>
+          <div class="uppercaseSpec" style="margin-bottom: 8px;">Tasti — scorciatoie</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <span class="kbd">⌘</span><span class="kbd">Z</span>
+            <span style="color: var(--auror-muted);">undo</span>
+            <span style="width:1px; height:18px; background:var(--auror-line); margin:0 6px;"></span>
+            <span class="kbd">L</span><span style="color: var(--auror-muted);">linea</span>
+            <span style="width:1px; height:18px; background:var(--auror-line); margin:0 6px;"></span>
+            <span class="kbd">Esc</span><span style="color: var(--auror-muted);">annulla</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOL DOCK -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Tool dock</h3><span class="small">Vertical, fixed 64 px wide · 44 px tools · 10 px gap</span></div>
+      <div class="cardBody" style="display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: flex-start;">
+        <aside class="dockDemo">
+          <button class="toolIconDemo" title="Select"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M5 3.5l13 7.5-5.5 1.6 3 6.5-2.7 1.3-3-6.5-4.3 4.4z"></path></svg></button>
+          <button class="toolIconDemo active" title="Line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19L19 5"></path></svg></button>
+          <button class="toolIconDemo" title="Rect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="6" width="14" height="12" rx="1"></rect></svg></button>
+          <button class="toolIconDemo" title="Circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"></circle></svg></button>
+          <button class="toolIconDemo" title="Arc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18a10 10 0 0 1 16-8"></path><circle cx="4" cy="18" r="1.4" fill="currentColor"></circle><circle cx="20" cy="10" r="1.4" fill="currentColor"></circle></svg></button>
+          <button class="toolIconDemo" title="Polyline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17l5-6 4 3 5-7"></path><circle cx="5" cy="17" r="1.5" fill="currentColor"></circle><circle cx="10" cy="11" r="1.5" fill="currentColor"></circle><circle cx="14" cy="14" r="1.5" fill="currentColor"></circle><circle cx="19" cy="7" r="1.5" fill="currentColor"></circle></svg></button>
+          <div class="toolSepDemo"></div>
+          <button class="toolIconDemo" title="Break"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19l14-14"></path><circle cx="12" cy="12" r="2"></circle></svg></button>
+          <button class="toolIconDemo" title="Katana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19l14-14"></path><path d="M9 15l-4 4"></path><path d="M15 9l4-4"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="7" r="2"></circle></svg></button>
+          <div class="toolSepDemo"></div>
+          <button class="toolIconDemo" title="Pan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"></path><path d="M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"></path></svg></button>
+        </aside>
+
+        <div>
+          <h4 style="margin: 0 0 8px; font-size: 14px;">Anatomy</h4>
+          <ul class="voiceList">
+            <li><span class="glyph" style="background: var(--auror-ink-2);">1</span><div><strong>Container.</strong> Rounded card, soft shadow, 8 px horizontal / 10 px vertical padding.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">2</span><div><strong>Tool button.</strong> 44×44, radius 10, 1 px border. Default fill <code class="kbd">#f0f2f5</code>, hover lifts 1 px and gains a soft shadow, active gets the brand-soft fill + ring.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">3</span><div><strong>Group separator.</strong> 36 px wide hairline, 4 px above/below. Group: draw → edit → utility.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">4</span><div><strong>Tooltip on hover</strong> (delay 400 ms) shows the localized <code class="kbd">data-i18n-title</code> string, never raw IDs.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYER LIST -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Layer list</h3><span class="small">One row per layer · 28 px iconBtns · active row gets a brand-soft button background</span></div>
+      <div class="cardBody" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div class="layerDemo">
+
+          <div class="layerItemDemo isActive">
+            <div class="layerLeft">
+              <span class="colorDot" style="background: #111827;"></span>
+              <button class="layerName">Layer 1</button>
+            </div>
+            <div class="layerActions">
+              <button class="iconBtnSm" aria-label="Visible">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+              <button class="iconBtnSm" aria-label="Lock">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 1 1 8 0v3"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="layerItemDemo">
+            <div class="layerLeft">
+              <span class="colorDot" style="background: var(--auror-river);"></span>
+              <button class="layerName">Construction</button>
+            </div>
+            <div class="layerActions">
+              <button class="iconBtnSm" aria-label="Visible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+              <button class="iconBtnSm" aria-label="Lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 1 1 8 0v3"></path></svg></button>
+            </div>
+          </div>
+
+          <div class="layerItemDemo isHidden">
+            <div class="layerLeft">
+              <span class="colorDot" style="background: var(--auror-fern);"></span>
+              <button class="layerName">Annotations</button>
+            </div>
+            <div class="layerActions">
+              <button class="iconBtnSm" aria-label="Hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"></path><path d="M10.6 10.6A3 3 0 0 0 13.4 13.4"></path><path d="M9.9 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.1 4.1M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7c1.6 0 3-.3 4.2-.8"></path></svg></button>
+              <button class="iconBtnSm" aria-label="Lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 1 1 8 0v3"></path></svg></button>
+            </div>
+          </div>
+
+          <div class="layerItemDemo">
+            <div class="layerLeft">
+              <span class="colorDot" style="background: #b91c1c;"></span>
+              <button class="layerName">Cuts</button>
+            </div>
+            <div class="layerActions">
+              <button class="iconBtnSm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+              <button class="iconBtnSm" aria-label="Locked">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" fill="rgba(245,160,0,.18)"></rect><path d="M8 11V8a4 4 0 1 1 8 0v3"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="margin: 0 0 8px; font-size: 14px;">Notes</h4>
+          <ul class="voiceList">
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>Click the colored dot opens the <strong>color picker</strong>. Don't try to inline a swatch grid here.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>The active layer has a <code class="kbd">brand-soft</code> background on the name button — never on the row itself, so visibility/lock controls stay neutral.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>Hidden rows drop the name to 55 % opacity. Locked rows drop to 75 %. Both keep the dot at full saturation so layer identity is preserved.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>Long names truncate with <code class="kbd">text-overflow: ellipsis</code> rather than wrapping.</div></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INSPECTOR (full mock) -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Inspector panel</h3><span class="small">Right-side · 420 px wide · stacked cardSec sections</span></div>
+      <div class="cardBody" style="display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: flex-start;">
+
+        <div class="inspectorMock">
+          <div class="inspectorTabs">
+            <button class="inspectorTab active">Proprietà</button>
+            <button class="inspectorTab">Layer</button>
+            <button class="inspectorTab">Snap</button>
+            <button class="inspectorTab">I/O</button>
+          </div>
+
+          <section class="inspectorCard">
+            <div class="secT">Storico</div>
+            <div style="display: flex; gap: 8px; overflow-x: auto;">
+              <button class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h11a5 5 0 0 1 0 10H9"></path><path d="M8 5 4 9l4 4"></path></svg></span><span>Undo</span></button>
+              <button class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9H9a5 5 0 0 0 0 10h6"></path><path d="M16 5l4 4-4 4"></path></svg></span><span>Redo</span></button>
+              <button class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h4"></path><path d="M6 7h12l-1 14H7L6 7z"></path><path d="M10 11v6M14 11v6"></path></svg></span><span>Pulisci</span></button>
+            </div>
+          </section>
+
+          <section class="inspectorCard">
+            <div class="secT">Selezione</div>
+            <div style="padding: 8px 10px; border: 1px solid var(--auror-line-soft); border-radius: var(--auror-r); background: var(--surface-sunken); font-size: 12px; color: var(--auror-muted); margin-bottom: 12px;">
+              2 segments · 1 circle
+            </div>
+            <div style="border: 1px solid var(--auror-line-soft); border-radius: var(--auror-r); padding: 12px; background: var(--surface-sunken); margin-bottom: 10px;">
+              <div class="uppercaseSpec" style="margin-bottom: 10px;">Geometria</div>
+              <div class="inspectorGrid2">
+                <div><label class="aurorLabel">Layer</label><select class="aurorSelect"><option>Layer 1</option></select></div>
+                <div><label class="aurorLabel">Spessore</label><input class="aurorInput" type="number" value="1.0"></div>
+              </div>
+            </div>
+            <div style="border: 1px solid var(--auror-line-soft); border-radius: var(--auror-r); padding: 12px; background: var(--surface-sunken);">
+              <div class="uppercaseSpec" style="margin-bottom: 10px;">Aspetto</div>
+              <label class="aurorLabel">Colore</label>
+              <div style="display:flex; align-items:center; gap: 10px;">
+                <button class="colorBigSwatch"></button>
+                <input class="hexInputDemo" type="text" value="#111827">
+              </div>
+            </div>
+            <div class="inspectorRow" style="margin-top: 12px;">
+              <button class="aurorBtn primary">Applica</button>
+              <button class="aurorBtn">Elimina</button>
+              <button class="aurorBtn">Deselez.</button>
+            </div>
+          </section>
+        </div>
+
+        <div>
+          <h4 style="margin: 0 0 8px; font-size: 14px;">Composition rules</h4>
+          <ul class="voiceList">
+            <li><span class="glyph" style="background: var(--auror-ink-2);">A</span><div><strong>Tabs</strong> share the standard 10 px radius, no underline. Active tab gets <code class="kbd">brand-soft</code>; never use a left border accent.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">B</span><div><strong>cardSec</strong> stacks with 10 px vertical margin. Each section has a <code class="kbd">.secTitle</code> bolded, 13 px.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">C</span><div><strong>Sub-blocks</strong> nest a softer card (<code class="kbd">#fbfbfc</code>) with an <strong>uppercase 11 px eyebrow</strong> for grouping (Geometria, Aspetto, Azioni).</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">D</span><div><strong>Action rows</strong> use a 2-column grid with the primary button spanning both columns when it's the dominant verb.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">E</span><div><strong>Empty state</strong>: a single muted line in a soft chip — never an illustration.</div></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CONTEXT MENU -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Canvas context menu</h3><span class="small">Right-click anywhere on the canvas · keep flat, no submenus</span></div>
+      <div class="cardBody" style="display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: flex-start;">
+        <div class="ctxDemo">
+          <button><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h4"></path><path d="M6 7h12l-1 14H7L6 7z"></path><path d="M10 11v6M14 11v6"></path></svg></span><span>Elimina</span></button>
+          <button><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="10" height="10" rx="2"></rect><path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1"></path></svg></span><span>Copia</span></button>
+          <button><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l1 2h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2l1-2z"></path><path d="M9 8h6"></path></svg></span><span>Incolla</span></button>
+          <div class="ctxSep"></div>
+          <button><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v12"></path><path d="M7 13l5 5 5-5"></path></svg></span><span>Indietro</span></button>
+          <button><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V7"></path><path d="M7 11l5-5 5 5"></path></svg></span><span>Avanti</span></button>
+          <div class="ctxSep"></div>
+          <button><span class="btnIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg></span><span>Deseleziona</span></button>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 8px; font-size: 14px;">Rules</h4>
+          <ul class="voiceList">
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>One flat list, max ~7 items. Group related actions with <code class="kbd">.ctxSep</code>.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>Every entry has an icon left-aligned in a 20×20 box, even if the icon is light.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>Disabled items use opacity .45 — never red text — so they remain readable in context.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUSBAR -->
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Status bar &amp; command field</h3><span class="small">Bottom of the workspace · always visible</span></div>
+      <div class="cardBody" style="padding: 0;">
+        <div style="background: var(--auror-bg); padding: 24px;">
+          <div class="card" style="margin: 0;">
+            <div style="height: 240px; background: var(--auror-canvas); background-image: linear-gradient(to right, var(--auror-grid) 1px, transparent 1px),linear-gradient(to bottom, var(--auror-grid) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            <div class="statusDemo">
+              <div class="group"><span style="font-weight:600; color: var(--auror-ink-2);">Pronto</span><span class="sep">|</span><span style="font-family: var(--auror-mono);">x: 142.0  y: 88.5  ·  Zoom: 5</span></div>
+              <div class="cmdField">
+                <span style="color: var(--auror-muted);">Comando:</span>
+                <input type="text" placeholder="es: 10,20  oppure  @50,0">
+                <button class="aurorBtn">Annulla</button>
+              </div>
+              <div class="group"><span>x: 142.0  y: 88.5  ·  Zoom: 5</span><span class="sep">|</span><span>Snap: on</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLOR PICKER MODAL -->
+    <div class="card">
+      <div class="cardHeader"><h3>Color picker</h3><span class="small">A rectangular HSV panel — saturation/value square, hue strip, swatches, hex input</span></div>
+      <div class="cardBody" style="display: grid; grid-template-columns: 320px 1fr; gap: 32px; align-items: center;">
+        <div style="display: grid; place-items: center; padding: 24px; background: var(--surface-sunken); border-radius: var(--auror-r);">
+          <div style="width: 264px; background: var(--auror-card); border: 1px solid var(--auror-line); border-radius: var(--auror-r); box-shadow: var(--auror-shadow-md); padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+            <!-- saturation/value square -->
+            <div style="position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: var(--auror-r); overflow: hidden; border: 1px solid var(--auror-line); background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(28, 95%, 52%));">
+              <div style="position: absolute; left: 72%; top: 28%; width: 12px; height: 12px; border-radius: 2px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.45); transform: translate(-50%, -50%);"></div>
+            </div>
+            <!-- hue strip -->
+            <div style="position: relative; height: 12px; border-radius: 6px; border: 1px solid var(--auror-line); background: linear-gradient(to right, #ef4444, #f59e0b, #eab308, #84cc16, #10b981, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444);">
+              <div style="position: absolute; left: 8%; top: 50%; width: 8px; height: 18px; border-radius: 3px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.45); transform: translate(-50%, -50%); background: transparent;"></div>
+            </div>
+            <!-- swatch row -->
+            <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;">
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #111827; border: 1px solid var(--auror-line);"></div>
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #ef4444;"></div>
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #f59e0b; outline: 2px solid var(--auror-brand-ring); outline-offset: 1px;"></div>
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #eab308;"></div>
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #10b981;"></div>
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #3b82f6;"></div>
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #8b5cf6;"></div>
+              <div style="aspect-ratio: 1; border-radius: 4px; background: #ffffff; border: 1px dashed var(--auror-line);"></div>
+            </div>
+            <!-- hex input + preview -->
+            <div style="display: grid; grid-template-columns: 32px 1fr; gap: 8px; align-items: center;">
+              <div style="width: 32px; height: 32px; border-radius: var(--auror-r); border: 1px solid var(--auror-line); background: hsl(28, 95%, 52%);"></div>
+              <input class="aurorInput" style="height: 32px; font-family: var(--auror-mono); font-size: 12px;" type="text" value="#F59E0B">
+            </div>
+            <!-- buttons -->
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button class="aurorBtn" style="font-size: 12px; padding: 6px 12px;">Annulla</button>
+              <button class="aurorBtn primary" style="font-size: 12px; padding: 6px 12px;">OK</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 8px; font-size: 14px;">Why rectangular</h4>
+          <p class="bodySpec" style="margin: 0 0 12px;">The picker uses the same vocabulary as the rest of the chrome — a card with a 10&nbsp;px radius, hairline borders, a hex input that matches every other <code class="kbd">.aurorInput</code>, and the same <code class="kbd">Annulla</code>/<code class="kbd">OK</code> button pair the inspector and modals use. No bespoke shapes.</p>
+          <ul class="voiceList">
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>The <strong>SV square</strong> is the primary surface — drag for saturation (x) and value (y). Aspect ratio is locked 1:1 so it never distorts.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>The <strong>hue strip</strong> sits directly below at 12&nbsp;px tall — same height as a hairline divider plus a thumb.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>Eight <strong>recent swatches</strong> persist per project. The active one gets a brand-ring outline, never a fill change.</div></li>
+            <li><span class="glyph" style="background: var(--auror-ink-2);">·</span><div>The <strong>hex field</strong> is editable and the canonical value — typing <code class="kbd">#F59E0B</code> wins over the SV/hue cursors.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============= 9. PATTERNS ============= -->
+  <section id="patterns" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">09 — Patterns</div>
+        <h2 class="secTitle">Patterns</h2>
+      </div>
+      <p class="secLede">How the pieces compose. These are the reusable shapes that should stay consistent across new tools, modes, and exports.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardHeader"><h3>Workspace shell</h3><span class="small">Header · dock · stage · inspector · status</span></div>
+      <div class="cardBody">
+
+        <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); overflow: hidden;">
+          <!-- header -->
+          <div style="height: 48px; background: var(--auror-card); border-bottom: 1px solid var(--auror-line); display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+            <div style="display:flex; align-items:center; gap: 10px; font-weight: 700; font-size: 13px;">AUROR</div>
+            <div style="font-size:11px; color: var(--auror-muted); font-family: var(--auror-mono);">Standalone · LINE</div>
+            <div style="font-size:11px; color: var(--auror-muted);">IT · Utente</div>
+          </div>
+          <!-- workspace -->
+          <div style="display: grid; grid-template-columns: 64px 1fr 320px; gap: 14px; padding: 14px; background: var(--auror-bg); height: 320px;">
+            <aside style="background: var(--auror-card); border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 8px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--auror-shadow-md);">
+              <div style="height: 36px; border-radius: var(--auror-r); background: var(--surface-sunken);"></div>
+              <div style="height: 36px; border-radius: var(--auror-r); background: var(--auror-brand-soft); border: 1px solid var(--auror-brand-ring);"></div>
+              <div style="height: 36px; border-radius: var(--auror-r); background: var(--surface-sunken);"></div>
+              <div style="height: 36px; border-radius: var(--auror-r); background: var(--surface-sunken);"></div>
+              <div style="height: 1px; background: var(--auror-line); margin: 4px 0;"></div>
+              <div style="height: 36px; border-radius: var(--auror-r); background: var(--surface-sunken);"></div>
+              <div style="height: 36px; border-radius: var(--auror-r); background: var(--surface-sunken);"></div>
+            </aside>
+            <section style="background: var(--auror-canvas); border: 1px solid var(--auror-line); border-radius: var(--auror-r); background-image: linear-gradient(to right, var(--auror-grid) 1px, transparent 1px),linear-gradient(to bottom, var(--auror-grid) 1px, transparent 1px); background-size: 16px 16px; box-shadow: var(--auror-shadow-md); position: relative; color: var(--auror-grid-strong);">
+              <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet" style="position:absolute; inset: 0; width: 100%; height: 100%;">
+                <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="60" y="60" width="280" height="120" rx="6"></rect>
+                  <circle cx="140" cy="120" r="20"></circle>
+                  <circle cx="260" cy="120" r="20"></circle>
+                </g>
+                <g fill="none" stroke="var(--auror-brand-dark)" stroke-width="2.2" stroke-linecap="round">
+                  <path d="M60 60 L340 60"></path>
+                </g>
+              </svg>
+            </section>
+            <aside style="background: var(--auror-card); border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--auror-shadow-md);">
+              <div style="display: flex; gap: 6px;">
+                <div style="padding: 5px 10px; background: var(--auror-brand-soft); border-radius: var(--auror-r); font-size: 11px; font-weight: 600;">Proprietà</div>
+                <div style="padding: 5px 10px; color: var(--auror-muted); font-size: 11px;">Layer</div>
+                <div style="padding: 5px 10px; color: var(--auror-muted); font-size: 11px;">Snap</div>
+              </div>
+              <div style="height: 1px; background: var(--auror-line);"></div>
+              <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 10px; height: 70px;"></div>
+              <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 10px; height: 90px;"></div>
+              <div style="margin-top: auto; display: flex; gap: 6px;">
+                <div style="flex: 1; height: 32px; border-radius: var(--auror-r); background: var(--auror-brand);"></div>
+                <div style="flex: 1; height: 32px; border-radius: var(--auror-r); background: var(--surface-raised); border: 1px solid var(--auror-line);"></div>
+              </div>
+            </aside>
+          </div>
+          <!-- statusbar -->
+          <div style="background: var(--auror-card); border-top: 1px solid var(--auror-line); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--auror-muted);">
+            <span>Pronto · x: 142.0  y: 88.5 · Zoom: 5</span>
+            <span style="font-family: var(--auror-mono);">Comando: @50,0</span>
+            <span>Snap: on</span>
+          </div>
+        </div>
+
+        <p class="smallSpec" style="margin-top: 14px;">
+          <strong>Grid:</strong> 64 px dock · flexible stage · 360–420 px inspector. The dock and inspector are sticky panels with their own scroll; only the stage's canvas resizes.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHeader"><h3>Bilingual content</h3><span class="small">Italian first, English equal</span></div>
+      <div class="cardBody">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 16px;">
+            <div class="uppercaseSpec" style="margin-bottom: 8px;">IT — default</div>
+            <p class="bodySpec" style="margin: 0 0 8px;"><code class="kbd">data-i18n="section.snapGrid"</code> — “Snap e griglia”</p>
+            <p class="bodySpec" style="margin: 0;"><code class="kbd">data-i18n-placeholder="layer.name.placeholder"</code> — “Nome layer”</p>
+          </div>
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 16px;">
+            <div class="uppercaseSpec" style="margin-bottom: 8px;">EN — toggled</div>
+            <p class="bodySpec" style="margin: 0 0 8px;">Same key resolves to “Snap &amp; grid”</p>
+            <p class="bodySpec" style="margin: 0;">Same key resolves to “Layer name”</p>
+          </div>
+        </div>
+        <p class="smallSpec" style="margin-top: 14px;">
+          <strong>Rule:</strong> Every user-facing string lives in <code class="kbd">js/i18n.js</code> under a stable key. Don't hardcode new copy in markup — even tooltips use <code class="kbd">data-i18n-title</code>. The language pill in the header is the only language affordance; never add per-section toggles.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 10. VOICE ============= -->
+  <section id="voice" class="dsSec">
+    <div class="secHead">
+      <div>
+        <div class="secEyebrow">10 — Voice</div>
+        <h2 class="secTitle">Voice &amp; tone</h2>
+      </div>
+      <p class="secLede">Friendly, technical, slightly self-aware. AUROR knows it's a small CAD; it doesn't apologize for it. The README sets the bar — match its tone in product copy, never exceed it.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="cardBody">
+        <div class="voice">
+          <div class="voiceCol do">
+            <h4>Do</h4>
+            <ul class="voiceList">
+              <li><span class="glyph">✓</span><div><strong>Be terse.</strong> “Pronto”. “Snap: on”. “Zoom: 5”. Statusbar lines never wrap.</div></li>
+              <li><span class="glyph">✓</span><div><strong>Speak in coordinates.</strong> When a number is the answer, lead with the number. <code class="kbd">x: 142.0  y: 88.5</code>.</div></li>
+              <li><span class="glyph">✓</span><div><strong>Italiano e inglese.</strong> Default in IT, EN come lingua paritaria. Stesse lunghezze di stringa in entrambe — EN non deve mai essere troncato.</div></li>
+              <li><span class="glyph">✓</span><div><strong>Verbi all'imperativo.</strong> Salva, Carica, Applica, Elimina. Mai “Clicca qui per salvare”.</div></li>
+            </ul>
+          </div>
+          <div class="voiceCol dont">
+            <h4>Don't</h4>
+            <ul class="voiceList">
+              <li><span class="glyph">✕</span><div><strong>No emoji nel chrome.</strong> Il brand vive nella documentazione, non nei pulsanti. L'app resta SVG puro.</div></li>
+              <li><span class="glyph">✕</span><div><strong>No tono marketing.</strong> “Unlock pro features”, “Potente, intuitivo…” — AUROR non parla così.</div></li>
+              <li><span class="glyph">✕</span><div><strong>Niente bottoni-frase.</strong> Un bottone è un verbo + (opzionale) un sostantivo. “Salva”, non “Salva il mio progetto”.</div></li>
+              <li><span class="glyph">✕</span><div><strong>Niente punti esclamativi</strong> in errori o stati vuoti. Tono calmo, tecnico, fattuale.</div></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardHeader"><h3>Voice in context</h3><span class="small">How it shows up</span></div>
+      <div class="cardBody">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 14px;">
+            <div class="uppercaseSpec" style="margin-bottom: 6px;">Empty state</div>
+            <div style="padding: 10px 12px; background: var(--surface-sunken); border: 1px solid var(--auror-line-soft); border-radius: var(--auror-r); font-size: 12px; color: var(--auror-muted);">Nessuna selezione</div>
+          </div>
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 14px;">
+            <div class="uppercaseSpec" style="margin-bottom: 6px;">Helper</div>
+            <p class="smallSpec" style="margin: 0;">Suggerimento: se lo snap prende troppo, disattiva Perpendicolare o Tangente.</p>
+          </div>
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 14px;">
+            <div class="uppercaseSpec" style="margin-bottom: 6px;">Confirm</div>
+            <div style="display:flex; gap: 6px;"><button class="aurorBtn primary" style="font-size:12px; padding: 6px 10px;">Salva</button><button class="aurorBtn" style="font-size:12px; padding: 6px 10px;">Annulla</button></div>
+          </div>
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 14px;">
+            <div class="uppercaseSpec" style="margin-bottom: 6px;">Status</div>
+            <div style="font-family: var(--auror-mono); font-size: 12px; color: var(--auror-ink-2);">Pronto</div>
+          </div>
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 14px;">
+            <div class="uppercaseSpec" style="margin-bottom: 6px;">Command</div>
+            <div style="font-family: var(--auror-mono); font-size: 12px; color: var(--auror-ink-2);">@50,0</div>
+          </div>
+          <div style="border: 1px solid var(--auror-line); border-radius: var(--auror-r); padding: 14px;">
+            <div class="uppercaseSpec" style="margin-bottom: 6px;">Tagline</div>
+            <p class="smallSpec" style="margin: 0; color: var(--auror-ink-2);">Strumento di disegno tecnico.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= FOOTER ============= -->
+  <footer class="dsFooter">
+    <div>AUROR Design System · v1.0 · derived from <code class="kbd">graphimecc/auror@main</code></div>
+    <div>Document is a sibling to the app — keep both in sync when tokens change.</div>
+  </footer>
+
+</main>
+
+
+<script>
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    function applyTheme(t){
+      if(t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      else document.documentElement.removeAttribute('data-theme');
+    }
+    btn.addEventListener('click', function(){
+      var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      var next = cur === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try{ localStorage.setItem('auror-theme', next); }catch(e){}
+    });
+    // Cross-tab sync (settings.html and design-system.html stay aligned)
+    window.addEventListener('storage', function(e){
+      if(e.key === 'auror-theme' && e.newValue){ applyTheme(e.newValue); }
+      if(e.key === 'auror.logo'){ applyLogo(); }
+    });
+  })();
+
+  // Apply admin-uploaded logo
+  function applyLogo(){
+    var el = document.getElementById('brandMark');
+    if(!el) return;
+    var logo = null;
+    try{ logo = localStorage.getItem('auror.logo'); }catch(e){}
+    if(logo){
+      el.innerHTML = '';
+      var img = document.createElement('img');
+      img.src = logo; img.alt = 'AUROR';
+      el.appendChild(img);
+    } else {
+      el.textContent = 'A';
+    }
+  }
+  applyLogo();
+</script>
+
+
+
+</body></html>
