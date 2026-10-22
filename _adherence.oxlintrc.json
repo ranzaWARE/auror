@@ -1,0 +1,310 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/Button/**",
+              "components/Card/**",
+              "components/Notice/**",
+              "components/TextField/**",
+              "js/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Space Grotesk|Space Mono))/i]",
+        "message": "Font not provided by the design system. Available: Space Grotesk, Space Mono."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute > JSXIdentifier[name!=/^(?:variant|icon|iconAfter|active|disabled|type|className|children|key|ref|className|style|children)$/]",
+        "message": "<Button> doesn't accept that prop. Declared props: variant, icon, iconAfter, active, disabled, type, className, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:default|primary|danger)$/]",
+        "message": "<Button> variant must be one of 'default' | 'primary' | 'danger'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='type'] > Literal[value!=/^(?:button|submit|reset)$/]",
+        "message": "<Button> type must be one of 'button' | 'submit' | 'reset'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Card'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|meta|padded|className|children|key|ref|className|style|children)$/]",
+        "message": "<Card> doesn't accept that prop. Declared props: title, meta, padded, className, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Notice'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|title|className|children|key|ref|className|style|children)$/]",
+        "message": "<Notice> doesn't accept that prop. Declared props: tone, title, className, children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Notice'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:info|success|warn|danger)$/]",
+        "message": "<Notice> tone must be one of 'info' | 'success' | 'warn' | 'danger'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='TextFieldOption'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|label|key|ref|className|style|children)$/]",
+        "message": "<TextFieldOption> doesn't accept that prop. Declared props: value, label."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "Button": {
+        "replaces": []
+      },
+      "Card": {
+        "replaces": []
+      },
+      "Notice": {
+        "replaces": []
+      },
+      "TextFieldOption": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--accent",
+      "--accent-hover",
+      "--accent-ring",
+      "--accent-soft",
+      "--accent-tint",
+      "--auror-amethyst",
+      "--auror-bg",
+      "--auror-bone",
+      "--auror-brand",
+      "--auror-brand-dark",
+      "--auror-brand-ring",
+      "--auror-brand-soft",
+      "--auror-brand-tint",
+      "--auror-canvas",
+      "--auror-card",
+      "--auror-clay",
+      "--auror-control-h",
+      "--auror-control-h-sm",
+      "--auror-danger",
+      "--auror-danger-soft",
+      "--auror-dur-base",
+      "--auror-dur-fast",
+      "--auror-dur-slow",
+      "--auror-ease",
+      "--auror-fern",
+      "--auror-focus",
+      "--auror-font",
+      "--auror-fs-11",
+      "--auror-fs-12",
+      "--auror-fs-13",
+      "--auror-fs-14",
+      "--auror-fs-16",
+      "--auror-fs-20",
+      "--auror-fs-28",
+      "--auror-fs-40",
+      "--auror-grid",
+      "--auror-grid-strong",
+      "--auror-header-h",
+      "--auror-info",
+      "--auror-ink",
+      "--auror-ink-2",
+      "--auror-lh-body",
+      "--auror-lh-snug",
+      "--auror-lh-tight",
+      "--auror-line",
+      "--auror-line-soft",
+      "--auror-line-strong",
+      "--auror-mono",
+      "--auror-muted",
+      "--auror-r",
+      "--auror-r-lg",
+      "--auror-r-md",
+      "--auror-r-pill",
+      "--auror-r-sm",
+      "--auror-r-xl",
+      "--auror-record",
+      "--auror-river",
+      "--auror-s-1",
+      "--auror-s-10",
+      "--auror-s-12",
+      "--auror-s-2",
+      "--auror-s-3",
+      "--auror-s-4",
+      "--auror-s-5",
+      "--auror-s-6",
+      "--auror-s-8",
+      "--auror-shadow-lg",
+      "--auror-shadow-md",
+      "--auror-shadow-sm",
+      "--auror-success",
+      "--auror-tool-h",
+      "--auror-warn",
+      "--border",
+      "--border-soft",
+      "--border-strong",
+      "--danger",
+      "--danger-soft",
+      "--focus-ring",
+      "--info",
+      "--inverse-border",
+      "--inverse-surface",
+      "--inverse-text",
+      "--inverse-text-muted",
+      "--record",
+      "--record-fg",
+      "--shadow-lg",
+      "--shadow-md",
+      "--shadow-sm",
+      "--success",
+      "--surface",
+      "--surface-canvas",
+      "--surface-overlay",
+      "--surface-raised",
+      "--surface-sunken",
+      "--text",
+      "--text-muted",
+      "--text-on-accent",
+      "--text-on-inverse",
+      "--text-secondary",
+      "--text-strong",
+      "--warn"
+    ],
+    "tokenKinds": {
+      "--auror-brand": "color",
+      "--auror-brand-dark": "color",
+      "--auror-brand-soft": "color",
+      "--auror-brand-tint": "color",
+      "--auror-brand-ring": "color",
+      "--auror-bone": "color",
+      "--auror-fern": "color",
+      "--auror-river": "color",
+      "--auror-clay": "color",
+      "--auror-amethyst": "color",
+      "--auror-record": "color",
+      "--auror-bg": "color",
+      "--auror-canvas": "color",
+      "--auror-card": "color",
+      "--auror-line": "color",
+      "--auror-line-strong": "color",
+      "--auror-line-soft": "color",
+      "--auror-grid": "color",
+      "--auror-grid-strong": "color",
+      "--auror-ink": "color",
+      "--auror-ink-2": "color",
+      "--auror-muted": "color",
+      "--auror-success": "color",
+      "--auror-warn": "color",
+      "--auror-danger": "color",
+      "--auror-danger-soft": "color",
+      "--auror-info": "color",
+      "--auror-r": "spacing",
+      "--auror-r-sm": "spacing",
+      "--auror-r-md": "spacing",
+      "--auror-r-lg": "spacing",
+      "--auror-r-xl": "spacing",
+      "--auror-r-pill": "spacing",
+      "--auror-shadow-sm": "shadow",
+      "--auror-shadow-md": "shadow",
+      "--auror-shadow-lg": "shadow",
+      "--auror-focus": "shadow",
+      "--auror-s-1": "spacing",
+      "--auror-s-2": "spacing",
+      "--auror-s-3": "spacing",
+      "--auror-s-4": "spacing",
+      "--auror-s-5": "spacing",
+      "--auror-s-6": "spacing",
+      "--auror-s-8": "spacing",
+      "--auror-s-10": "spacing",
+      "--auror-s-12": "spacing",
+      "--auror-font": "font",
+      "--auror-mono": "font",
+      "--auror-fs-11": "spacing",
+      "--auror-fs-12": "spacing",
+      "--auror-fs-13": "spacing",
+      "--auror-fs-14": "spacing",
+      "--auror-fs-16": "spacing",
+      "--auror-fs-20": "spacing",
+      "--auror-fs-28": "spacing",
+      "--auror-fs-40": "spacing",
+      "--auror-lh-tight": "font",
+      "--auror-lh-snug": "font",
+      "--auror-lh-body": "font",
+      "--auror-dur-fast": "other",
+      "--auror-dur-base": "other",
+      "--auror-dur-slow": "other",
+      "--auror-ease": "other",
+      "--auror-control-h": "spacing",
+      "--auror-control-h-sm": "spacing",
+      "--auror-tool-h": "spacing",
+      "--auror-header-h": "spacing",
+      "--surface": "color",
+      "--surface-raised": "color",
+      "--surface-sunken": "color",
+      "--surface-canvas": "color",
+      "--surface-overlay": "color",
+      "--border": "color",
+      "--border-soft": "color",
+      "--border-strong": "color",
+      "--text": "font",
+      "--text-strong": "font",
+      "--text-secondary": "font",
+      "--text-muted": "font",
+      "--text-on-accent": "font",
+      "--text-on-inverse": "font",
+      "--accent": "color",
+      "--accent-hover": "color",
+      "--accent-soft": "color",
+      "--accent-tint": "color",
+      "--accent-ring": "color",
+      "--success": "color",
+      "--warn": "color",
+      "--danger": "color",
+      "--danger-soft": "color",
+      "--info": "color",
+      "--record": "color",
+      "--record-fg": "color",
+      "--shadow-sm": "shadow",
+      "--shadow-md": "shadow",
+      "--shadow-lg": "shadow",
+      "--focus-ring": "color",
+      "--inverse-surface": "color",
+      "--inverse-border": "color",
+      "--inverse-text": "font",
+      "--inverse-text-muted": "font"
+    },
+    "fontFamilies": [
+      "Space Grotesk",
+      "Space Mono"
+    ]
+  }
+}
