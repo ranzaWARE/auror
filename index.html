@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AUROR</title>
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('auror-theme');
+      if(!t){ t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      if(t === 'dark' || t === 'eink') document.documentElement.setAttribute('data-theme', t);
+    }catch(e){}
+  })();
+</script>
+<link rel="stylesheet" href="css/tokens.css">
+<style>
+  *{ box-sizing: border-box; }
+  html,body{ margin: 0; }
+  body{ background: var(--surface); color: var(--text); font-family: var(--auror-font); line-height: var(--auror-lh-body); }
+  a{ color: inherit; }
+  .wrap{ max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  header{ height: var(--auror-header-h); border-bottom: 1px solid var(--border); background: var(--surface-raised); }
+  header .wrap{ height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand{ display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .04em; text-decoration: none; }
+  .mark{ width: 32px; height: 32px; border-radius: var(--auror-r); background: var(--accent); color: var(--text-on-accent); display: grid; place-items: center; font-weight: 800; }
+  .themes{ display: flex; gap: 4px; }
+  .themes button{ font: inherit; font-size: var(--auror-fs-13); height: var(--auror-control-h-sm); padding: 0 10px; border: 1px solid var(--border); border-radius: var(--auror-r); background: var(--surface-raised); color: var(--text); cursor: pointer; }
+  .themes button[aria-pressed="true"]{ background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
+  .hero{ padding: var(--auror-s-12) 0 var(--auror-s-8); }
+  .hero h1{ font-size: var(--auror-fs-40); line-height: var(--auror-lh-tight); margin: 0 0 var(--auror-s-4); }
+  .hero p{ color: var(--text-secondary); max-width: 640px; margin: 0; font-size: var(--auror-fs-16); }
+  .strip{ display: flex; gap: 6px; margin-top: var(--auror-s-8); }
+  .strip span{ height: 8px; flex: 1; border-radius: 4px; }
+  h2{ font-size: var(--auror-fs-13); text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin: var(--auror-s-10) 0 var(--auror-s-4); }
+  .grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--auror-s-6); }
+  .card{ display: flex; flex-direction: column; text-decoration: none; background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--auror-r); overflow: hidden; box-shadow: var(--shadow-md); transition: transform var(--auror-dur-base) var(--auror-ease), box-shadow var(--auror-dur-base) var(--auror-ease); }
+  .card:hover, .card:focus-visible{ transform: translateY(-2px); box-shadow: var(--shadow-lg); outline: none; }
+  .card:focus-visible{ box-shadow: var(--focus-ring); }
+  .preview{ position: relative; height: 180px; overflow: hidden; background: var(--surface-sunken); border-bottom: 1px solid var(--border); }
+  .preview iframe{ position: absolute; top: 0; left: 0; border: 0; pointer-events: none; transform-origin: 0 0; }
+  .body{ padding: var(--auror-s-5) var(--auror-s-6); }
+  .body strong{ display: block; font-size: var(--auror-fs-16); }
+  .body span{ color: var(--text-muted); font-size: var(--auror-fs-13); }
+  footer{ margin: var(--auror-s-12) 0 var(--auror-s-8); color: var(--text-muted); font-size: var(--auror-fs-13); }
+  footer a{ color: var(--accent); }
+  @media (max-width: 520px){ .themes button{ padding: 0 8px; } .hero h1{ font-size: var(--auror-fs-28); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="./"><span class="mark" aria-hidden="true">A</span>AUROR</a>
+    <div class="themes" role="group" aria-label="Tema">
+      <button type="button" data-t="light">Light</button>
+      <button type="button" data-t="dark">Dark</button>
+      <button type="button" data-t="eink">E-ink</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>AUROR Design System</h1>
+    <p>Token, componenti e pattern per lo spazio di lavoro di disegno e annotazione. Tre temi: light, dark ed e-ink per pannelli in scala di grigi.</p>
+    <div class="strip" aria-hidden="true">
+      <span style="background:var(--auror-brand)"></span>
+      <span style="background:var(--auror-fern)"></span>
+      <span style="background:var(--auror-clay)"></span>
+      <span style="background:var(--auror-river)"></span>
+      <span style="background:var(--auror-amethyst)"></span>
+    </div>
+  </section>
+
+  <h2>Riferimento</h2>
+  <div class="grid">
+    <a class="card" href="design-system.html" data-w="1280" data-h="900">
+      <div class="preview"></div>
+      <div class="body"><strong>Design system</strong><span>Token, tipografia, componenti e pattern</span></div>
+    </a>
+  </div>
+
+  <h2>Pagine</h2>
+  <div class="grid">
+    <a class="card" href="login.html" data-w="1280" data-h="800">
+      <div class="preview"></div>
+      <div class="body"><strong>Login</strong><span>Card centrata · Local, OIDC, LDAP</span></div>
+    </a>
+    <a class="card" href="settings.html" data-w="1280" data-h="900">
+      <div class="preview"></div>
+      <div class="body"><strong>Impostazioni</strong><span>Pagina impostazioni applicazione</span></div>
+    </a>
+    <a class="card" href="templates/workspace/Workspace.dc.html" data-w="1280" data-h="800">
+      <div class="preview"></div>
+      <div class="body"><strong>Workspace</strong><span>Header, tool dock, canvas, inspector, status bar</span></div>
+    </a>
+  </div>
+
+  <h2>Componenti</h2>
+  <div class="grid">
+    <a class="card" href="components/Button/Button.card.html" data-w="420" data-h="150">
+      <div class="preview"></div>
+      <div class="body"><strong>Button</strong><span>Default, primary, danger, active, disabled</span></div>
+    </a>
+    <a class="card" href="components/Card/Card.card.html" data-w="420" data-h="200">
+      <div class="preview"></div>
+      <div class="body"><strong>Card</strong><span>Pannello con header e meta opzionali</span></div>
+    </a>
+    <a class="card" href="components/Notice/Notice.card.html" data-w="420" data-h="260">
+      <div class="preview"></div>
+      <div class="body"><strong>Notice</strong><span>Quattro toni, legati al contenuto</span></div>
+    </a>
+    <a class="card" href="components/TextField/TextField.card.html" data-w="420" data-h="240">
+      <div class="preview"></div>
+      <div class="body"><strong>TextField</strong><span>Label, controllo e help come unità</span></div>
+    </a>
+  </div>
+
+  <footer>
+    File sorgente su <a href="https://github.com/ranzaWARE/auror">GitHub</a> · <code>css/tokens.css</code>, <code>css/ui.css</code>, <code>js/</code>
+  </footer>
+</main>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+    var btns = document.querySelectorAll('.themes button');
+    function current(){ return root.getAttribute('data-theme') || 'light'; }
+    function sync(){ btns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t === current()); }); }
+    function apply(t){
+      if(t === 'light') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t);
+      try{ localStorage.setItem('auror-theme', t); }catch(e){}
+      document.querySelectorAll('.preview iframe').forEach(function(f){
+        try{
+          var d = f.contentDocument.documentElement;
+          if(t === 'light') d.removeAttribute('data-theme'); else d.setAttribute('data-theme', t);
+        }catch(e){}
+      });
+      sync();
+    }
+    btns.forEach(function(b){ b.addEventListener('click', function(){ apply(b.dataset.t); }); });
+    sync();
+
+    // Live, scaled-down previews of each page
+    document.querySelectorAll('.card').forEach(function(card){
+      var box = card.querySelector('.preview');
+      var w = +card.dataset.w, h = +card.dataset.h;
+      var f = document.createElement('iframe');
+      f.src = card.getAttribute('href');
+      f.loading = 'lazy';
+      f.tabIndex = -1;
+      f.setAttribute('aria-hidden', 'true');
+      f.width = w; f.height = h;
+      f.addEventListener('load', function(){
+        try{
+          var t = current(), d = f.contentDocument.documentElement;
+          if(t === 'light') d.removeAttribute('data-theme'); else d.setAttribute('data-theme', t);
+        }catch(e){}
+      });
+      function fit(){
+        var s = Math.min(box.clientWidth / w, box.clientHeight / h);
+        if(w <= 600) s = Math.min(1, s);
+        else s = box.clientWidth / w;
+        f.style.transform = 'scale(' + s + ')';
+        f.style.left = Math.max(0, (box.clientWidth - w * s) / 2) + 'px';
+      }
+      box.appendChild(f);
+      fit();
+      new ResizeObserver(fit).observe(box);
+    });
+  })();
+</script>
+</body>
+</html>
