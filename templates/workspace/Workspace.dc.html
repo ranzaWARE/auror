@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Workspace" description="AUROR shell: header with nav drawer, tool dock, canvas, inspector, status bar." -->
+<helmet>
+<script src="./ds-base.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--surface);font-family:var(--auror-font);color:var(--text)">
+<div class="dsHeaderRail">
+<header class="dsHeader">
+<div class="dsBrand"><span class="dsBrandMark" aria-hidden="true">A</span><span class="dsBrandWord">AUROR</span></div>
+<nav id="dsNav"><a href="#" aria-current="page">Progetti</a><a href="#">Libreria</a><a href="#">Impostazioni</a></nav>
+<div class="dsHeaderRight">
+<button class="dsNavToggle" type="button" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="dsNav">
+<svg class="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+<svg class="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+</button>
+<button class="aurorBtn" type="button" onClick="{{ cycleTheme }}">{{ themeLabel }}</button>
+</div>
+</header>
+</div>
+<div style="flex:1;display:grid;grid-template-columns:64px minmax(0,1fr) 300px;gap:14px;padding:14px;align-items:stretch">
+<aside style="background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--auror-r);padding:8px;display:flex;flex-direction:column;gap:6px;height:max-content">
+<sc-for list="{{ tools }}" as="tool" hint-placeholder-count="5">
+<button class="iconBtn" type="button" title="{{ tool.name }}" style="width:44px;height:44px;border-radius:var(--auror-r);border:1px solid transparent;background:transparent;color:var(--text-secondary);display:grid;place-items:center;cursor:pointer" style-hover="background:var(--surface)">{{ tool.glyph }}</button>
+</sc-for>
+</aside>
+<main style="position:relative;background:var(--surface-canvas);border:1px solid var(--border);border-radius:var(--auror-r);overflow:hidden;min-height:420px">
+<div class="aurorEmpty" style="height:100%;justify-content:center;border:none">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path></svg>
+<h4>Tela vuota</h4>
+<p>Scegli uno strumento dalla barra a sinistra per iniziare a disegnare.</p>
+</div>
+</main>
+<aside style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<div class="card"><div class="cardHeader"><h3>Livelli</h3><span class="small">3</span></div><div class="cardBody" style="display:grid;gap:6px">
+<sc-for list="{{ layers }}" as="layer" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--auror-r);font-size:13px" style-hover="background:var(--surface)"><span style="width:8px;height:8px;border-radius:2px;background:var(--accent);flex-shrink:0"></span>{{ layer }}</div>
+</sc-for>
+</div></div>
+<div class="card"><div class="cardHeader"><h3>Proprietà</h3></div><div class="cardBody" style="display:grid;gap:12px">
+<div class="field"><label for="tplName">Nome</label><input class="aurorInput" id="tplName" type="text" value="Rilievo capannone B"></div>
+<div class="field"><label for="tplScale">Scala</label><select class="aurorSelect" id="tplScale"><option>1:50</option><option>1:100</option><option>1:200</option></select></div>
+</div></div>
+</aside>
+</div>
+<footer style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:var(--surface-raised);border-top:1px solid var(--border);font-size:11px;color:var(--text-muted)">
+<span>Pronto · x: 142.0  y: 88.5 · Zoom: 5</span>
+<span class="dsTag dsTag--mono">{{ themeName }}</span>
+</footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'light' };
+
+  componentDidMount() {
+    document.documentElement.setAttribute('data-theme', this.state.theme);
+    const hdr = document.querySelector('.dsHeader');
+    const btn = document.getElementById('navToggle');
+    if (!hdr || !btn) return;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = !hdr.hasAttribute('data-nav-open');
+      if (open) hdr.setAttribute('data-nav-open', ''); else hdr.removeAttribute('data-nav-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', (e) => {
+      if (hdr.hasAttribute('data-nav-open') && !hdr.contains(e.target)) {
+        hdr.removeAttribute('data-nav-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  renderVals() {
+    const order = ['light', 'dark', 'eink'];
+    const labels = { light: 'Chiaro', dark: 'Scuro', eink: 'E-ink' };
+    return {
+      tools: ['Seleziona', 'Penna', 'Linea', 'Testo', 'Misura'].map((name, i) => ({
+        name,
+        glyph: ['↖', '✎', '╱', 'T', '⟷'][i]
+      })),
+      layers: ['Pianta base', 'Quote', 'Annotazioni'],
+      themeName: labels[this.state.theme],
+      themeLabel: 'Tema: ' + labels[this.state.theme],
+      cycleTheme: () => {
+        const next = order[(order.indexOf(this.state.theme) + 1) % order.length];
+        document.documentElement.setAttribute('data-theme', next);
+        this.setState({ theme: next });
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

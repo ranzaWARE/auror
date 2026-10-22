@@ -1,0 +1,527 @@
+/* AUROR — i18n.
+   Every user-facing string lives here under a stable key. Markup carries
+   the key, never the copy:
+
+     <h3 data-i18n="settings.brand"></h3>
+     <input data-i18n-placeholder="brand.name.placeholder">
+     <button data-i18n-title="tool.line"></button>
+
+   IT is the base and the source of truth: every key exists in `it`. EN is
+   filled in over time, so a key it does not carry yet falls back to the
+   Italian string rather than to the raw key — a page in mixed languages is
+   readable, a page showing `section.snapGrid` is not.
+   AurorI18n.set('en') writes the choice through, like brand.js; other open
+   pages follow via the storage event. */
+(function (global) {
+  'use strict';
+
+  var KEY = 'auror.lang';
+  var DEFAULT = 'it';
+
+  var STRINGS = {
+    it: {
+      'nav.general': 'Generale',
+      'nav.editor': 'Editor',
+      'nav.defaults': 'Disegno',
+      'nav.shortcuts': 'Scorciatoie',
+      'nav.storage': 'Archivio',
+      'nav.about': 'Info',
+      'nav.admin': 'Admin',
+
+      'page.settings': 'Impostazioni',
+      'settings.lede': 'Configura il comportamento di AUROR su questo dispositivo. Le modifiche si salvano da sole.',
+      'settings.saved': 'Tutto salvato',
+      'settings.saving': 'Salvataggio…',
+
+      'section.brand': 'Brand',
+      'section.locale': 'Lingua e tema',
+      'section.behavior': 'Comportamento',
+      'section.snapGrid': 'Snap e griglia',
+
+      'field.name': 'Nome',
+      'field.preview': 'Anteprima',
+      'field.language': 'Lingua',
+      'field.theme': 'Tema',
+      'brand.name.help': 'Compare nell\u2019header di ogni pagina. L\u2019iniziale diventa il segno.',
+      'brand.name.placeholder': 'AUROR',
+      'brand.preview.help': 'Il segno è fisso in altezza e libero in larghezza.',
+      'lang.help': 'Usata per menu e tooltip.',
+      'theme.help': 'Ha la precedenza sul pulsante nell\u2019header.',
+      'theme.system': 'Come il sistema',
+      'theme.light': 'Chiaro',
+      'theme.dark': 'Scuro',
+      'theme.eink': 'E-ink',
+
+      'behavior.autosave': 'Salvataggio automatico',
+      'behavior.autosave.help': 'Conserva il disegno corrente in questo browser mentre lavori.',
+      'behavior.confirmClear': 'Conferma prima di svuotare',
+      'behavior.confirmClear.help': 'Chiede conferma quando svuoti l\u2019area di lavoro.',
+      'behavior.tooltips': 'Tooltip',
+      'behavior.tooltips.help': 'Suggerimenti al passaggio su strumenti e dock.',
+      'behavior.stats': 'Statistiche anonime',
+      'behavior.stats.help': 'Solo conteggi di disegni creati. Nessun contenuto, nessuna identità.',
+
+      'action.cancel': 'Annulla',
+      'action.delete': 'Elimina',
+      'action.save': 'Salva',
+      'action.import': 'Importa',
+      'action.newProject': 'Nuovo progetto',
+      'action.back': 'Torna al design system',
+      'action.menu': 'Menu',
+      'action.theme': 'Cambia tema',
+
+      'table.user': 'Utente',
+      'table.role': 'Ruolo',
+      'table.source': 'Origine',
+      'table.status': 'Stato',
+      'table.lastSeen': 'Ultimo accesso',
+      'table.projects': 'Progetti',
+      'table.storage': 'Spazio',
+      'role.admin': 'Admin',
+      'role.user': 'Utente',
+      'status.active': 'Attivo',
+      'status.invited': 'Invitato',
+
+      'section.units': 'Unità e precisione',
+      'section.performance': 'Prestazioni',
+      'section.stroke': 'Tratto',
+      'section.text': 'Testo',
+      'section.newDocs': 'Nuovi documenti',
+      'section.tools': 'Strumenti',
+      'section.editing': 'Modifica',
+      'section.view': 'Vista',
+      'section.overview': 'Panoramica',
+      'section.branding': 'Brand · Logo',
+      'section.users': 'Gestione utenti',
+      'section.usage': 'Utilizzo per utente',
+      'section.backend': 'Backend',
+      'section.backup': 'Backup e migrazione',
+      'section.accessLog': 'Registro accessi',
+      'editor.snapGrid': 'Snap alla griglia',
+      'editor.snapObj': 'Snap agli oggetti',
+      'editor.ortho': 'Modo orto',
+      'editor.rulers': 'Mostra righelli',
+      'editor.snapGrid.help': 'Aggancia il cursore alle intersezioni della griglia mentre disegni.',
+      'editor.snapObj.help': 'Aggancia a estremi, punti medi, centri e intersezioni.',
+      'editor.ortho.help': 'Vincola le nuove linee a orizzontale o verticale.',
+      'editor.rulers.help': 'Mostra i righelli in alto e a sinistra della tela.',
+      'field.units': 'Unità di disegno',
+      'field.precision': 'Precisione coordinate',
+      'field.angleUnit': 'Unità angolari',
+      'field.historyDepth': 'Profondità annullamenti',
+      'field.renderQuality': 'Qualità di resa',
+      'field.historyDepth.help': 'Valori alti occupano più memoria.',
+      'unit.mm': 'Millimetri (mm)',
+      'unit.cm': 'Centimetri (cm)',
+      'unit.m': 'Metri (m)',
+      'unit.in': 'Pollici (in)',
+      'unit.ft': 'Piedi (ft)',
+      'angle.deg': 'Gradi',
+      'angle.rad': 'Radianti',
+      'quality.low': 'Bassa (più veloce)',
+      'quality.balanced': 'Bilanciata',
+      'quality.high': 'Alta (più fluida)',
+      'unit.steps': 'passi',
+      'field.strokeWidth': 'Spessore tratto',
+      'field.lineStyle': 'Stile linea',
+      'field.lineCap': 'Terminale',
+      'field.font': 'Carattere predefinito',
+      'field.textSize': 'Corpo predefinito',
+      'field.paper': 'Formato predefinito',
+      'field.orientation': 'Orientamento',
+      'line.solid': 'Continua',
+      'line.dashed': 'Tratteggiata',
+      'line.dotted': 'Punteggiata',
+      'line.dashdot': 'Tratto-punto',
+      'cap.round': 'Arrotondato',
+      'cap.butt': 'Netto',
+      'cap.square': 'Quadrato',
+      'paper.custom': 'Personalizzato',
+      'orient.portrait': 'Verticale',
+      'orient.landscape': 'Orizzontale',
+      'defaults.note': 'Valgono per le nuove entità. La geometria esistente non cambia.',
+      'shortcuts.note': 'In questa build le scorciatoie sono di sola lettura. Le combinazioni personalizzate arrivano più avanti.',
+      'stat.users': 'Utenti',
+      'stat.sessions': 'Sessioni attive',
+      'stat.projects': 'Progetti',
+      'stat.storage': 'Spazio usato',
+      'table.lastActive': 'Ultima attività',
+      'admin.oidc': 'Abilita accesso OIDC',
+      'admin.ldap': 'Abilita accesso LDAP',
+      'admin.autoProvision': 'Crea utenti al primo accesso',
+      'admin.oidc.help': 'Mostra “Continua con SSO” nella pagina di accesso.',
+      'admin.ldap.help': 'Consente l’autenticazione sulla tua directory.',
+      'admin.autoProvision.help': 'Crea automaticamente account locali per gli utenti verificati.',
+      'admin.note': 'Impostazioni riservate agli amministratori. Valgono per ogni utente di questa istanza e sono salvate sul backend.',
+      'field.issuer': 'URL issuer',
+      'field.clientId': 'Client ID',
+      'field.clientSecret': 'Client secret',
+      'field.scopes': 'Scope',
+      'field.redirect': 'Redirect URI',
+      'field.adminClaim': 'Claim gruppo admin',
+      'field.server': 'Server',
+      'field.baseDn': 'Base DN',
+      'field.bindDn': 'Bind DN',
+      'field.bindPw': 'Password di bind',
+      'field.userFilter': 'Filtro ricerca utenti',
+      'field.adminDn': 'DN gruppo admin',
+      'field.issuer.help': 'URL base di discovery del provider OpenID.',
+      'field.redirect.help': 'Aggiungi questo URI ai callback consentiti del provider.',
+      'field.adminClaim.help': 'I membri di questo gruppo ricevono il ruolo admin.',
+      'field.email': 'Email',
+      'field.displayName': 'Nome visualizzato',
+      'field.tempPw': 'Password temporanea',
+      'field.newPw': 'Nuova password',
+      'field.tempPw.help': 'All’utente verrà chiesto di cambiarla al primo accesso.',
+      'field.newPw.help': 'Minimo 8 caratteri. L’utente dovrà aggiornarla al prossimo accesso.',
+      'role.administrator': 'Amministratore',
+      'ds.foundations': 'Fondamenti',
+      'ds.color': 'Colore',
+      'ds.type': 'Tipografia',
+      'ds.space': 'Spazio',
+      'ds.shape': 'Forma',
+      'ds.motion': 'Movimento',
+      'ds.icons': 'Icone',
+      'ds.components': 'Componenti',
+      'ds.patterns': 'Pattern',
+      'ds.voice': 'Voce',
+      'action.settings': 'Impostazioni',
+      'sec.principles.t': 'Principi',
+      'sec.principles.l': 'Quattro regole che tengono AUROR fedele a sé stesso. Valgono quando estendi strumenti, pannelli, export o qualunque schermata nuova.',
+      'sec.palette.t': 'Palette',
+      'sec.type.t': 'Tipografia',
+      'sec.space.t': 'Scala di spaziatura',
+      'sec.shape.t': 'Raggi ed elevazione',
+      'sec.motion.t': 'Il movimento è facoltativo',
+      'sec.icons.t': 'Icone',
+      'sec.components.t': 'Componenti',
+      'sec.patterns.t': 'Pattern',
+      'sec.voice.t': 'Voce e tono',
+      'card.state': 'Stato',
+      'card.state.m': 'Con parsimonia. Quasi tutti i messaggi usano Ink/Muted.',
+      'card.radii': 'Raggi',
+      'card.radii.m': 'Un raggio per tutto',
+      'card.elevation': 'Elevazione',
+      'card.elevation.m': 'Tre livelli, usati in questo ordine',
+      'card.button': 'Pulsante',
+      'card.button.m': 'Alto 36–40 px · raggio 10 · bordo 1 px · gap 8 tra icona e testo',
+      'card.inputs': 'Campi e select',
+      'card.inputs.m': 'Altezza 36 · raggio 10 · padding orizzontale 10 px',
+      'card.tagToggle': 'Tag, toggle, tastiera',
+      'card.tagToggle.m': 'Stato, modalità, scorciatoie',
+      'card.dock': 'Dock strumenti',
+      'card.dock.m': 'Verticale, larghezza fissa 64 px · strumenti 44 px · gap 10 px',
+      'card.layers': 'Elenco livelli',
+      'card.inspector': 'Pannello proprietà',
+      'card.inspector.m': 'A destra · largo 420 px · sezioni cardSec impilate',
+      'card.ctxMenu': 'Menu contestuale della tela',
+      'card.ctxMenu.m': 'Tasto destro sulla tela · piatto, senza sottomenu',
+      'card.audioBar': 'Barra audio',
+      'card.audioBar.m': 'Registrazione vocale flottante · trascina dalla presa, stringi dal bordo destro',
+      'card.feedback': 'Riscontro',
+      'card.feedback.m': 'Quattro modi per dire qualcosa · scegli in base a chi deve agire, e quando',
+      'card.statusBar': 'Barra di stato e campo comandi',
+      'card.statusBar.m': 'In fondo allo spazio di lavoro · sempre visibile',
+      'card.picker': 'Selettore colore',
+      'card.shell': 'Struttura dello spazio di lavoro',
+      'card.shell.m': 'Header · dock · tela · proprietà · stato',
+      'card.bilingual': 'Contenuto bilingue',
+      'card.bilingual.m': 'Prima l’italiano, l’inglese alla pari',
+      'card.voiceCtx': 'La voce in contesto',
+      'card.voiceCtx.m': 'Come si manifesta',
+      'lbl.floating': 'Flottante, non agganciata',
+      'lbl.shrink': 'Ordine di riduzione',
+      'lbl.recordNotDanger': 'Registrazione ≠ pericolo',
+      'lbl.notice': 'Notice — nella pagina, accanto a ciò che riguarda',
+      'lbl.toast': 'Toast — già fatto, niente da decidere',
+      'lbl.modal': 'Modale — l’app non può proseguire senza risposta',
+      'lbl.empty': 'Stato vuoto — dove starebbe il contenuto',
+      'empty.projects': 'Nessun progetto',
+      'empty.projects.body': 'I progetti che crei compaiono qui. Puoi iniziare da un foglio vuoto o importare un file esistente.'
+    },
+    en: {
+      'nav.general': 'General',
+      'nav.editor': 'Editor',
+      'nav.defaults': 'Drawing',
+      'nav.shortcuts': 'Shortcuts',
+      'nav.storage': 'Storage',
+      'nav.about': 'About',
+      'nav.admin': 'Admin',
+
+      'page.settings': 'Settings',
+      'settings.lede': 'Configure how AUROR behaves on this device. Changes save automatically.',
+      'settings.saved': 'All changes saved',
+      'settings.saving': 'Saving…',
+
+      'section.brand': 'Brand',
+      'section.locale': 'Language and theme',
+      'section.behavior': 'Behavior',
+      'section.snapGrid': 'Snap and grid',
+
+      'field.name': 'Name',
+      'field.preview': 'Preview',
+      'field.language': 'Language',
+      'field.theme': 'Theme',
+      'brand.name.help': 'Appears in the header of every page. The initial becomes the mark.',
+      'brand.name.placeholder': 'AUROR',
+      'brand.preview.help': 'The mark is fixed in height and free in width.',
+      'lang.help': 'Used for menus and tooltips.',
+      'theme.help': 'Overrides the toggle in the header.',
+      'theme.system': 'Match system',
+      'theme.light': 'Light',
+      'theme.dark': 'Dark',
+      'theme.eink': 'E-ink',
+
+      'behavior.autosave': 'Autosave to local storage',
+      'behavior.autosave.help': 'Persist the current sketch in this browser as you draw.',
+      'behavior.confirmClear': 'Confirm before clearing',
+      'behavior.confirmClear.help': 'Show a confirmation dialog when emptying the workspace.',
+      'behavior.tooltips': 'Tooltips',
+      'behavior.tooltips.help': 'Hover hints over toolbar tools and dock items.',
+      'behavior.stats': 'Anonymous usage stats',
+      'behavior.stats.help': 'Counts of drawings created. No content, no identity.',
+
+      'action.cancel': 'Cancel',
+      'action.delete': 'Delete',
+      'action.save': 'Save',
+      'action.import': 'Import',
+      'action.newProject': 'New project',
+      'action.back': 'Back to design system',
+      'action.menu': 'Menu',
+      'action.theme': 'Toggle theme',
+
+      'table.user': 'User',
+      'table.role': 'Role',
+      'table.source': 'Source',
+      'table.status': 'Status',
+      'table.lastSeen': 'Last seen',
+      'table.projects': 'Projects',
+      'table.storage': 'Storage',
+      'role.admin': 'Admin',
+      'role.user': 'User',
+      'status.active': 'Active',
+      'status.invited': 'Invited',
+
+      'section.units': 'Units & precision',
+      'section.performance': 'Performance',
+      'section.stroke': 'Stroke',
+      'section.text': 'Text',
+      'section.newDocs': 'New documents',
+      'section.tools': 'Tools',
+      'section.editing': 'Editing',
+      'section.view': 'View',
+      'section.overview': 'Overview',
+      'section.branding': 'Branding · App logo',
+      'section.users': 'User management',
+      'section.usage': 'Usage by user',
+      'section.backend': 'Backend',
+      'section.backup': 'Backup &amp; migration',
+      'section.accessLog': 'Access log',
+      'editor.snapGrid': 'Grid snap',
+      'editor.snapObj': 'Object snap',
+      'editor.ortho': 'Ortho mode',
+      'editor.rulers': 'Show rulers',
+      'editor.snapGrid.help': 'Snap cursor to grid intersections while drawing.',
+      'editor.snapObj.help': 'Snap to endpoints, midpoints, centers, intersections.',
+      'editor.ortho.help': 'Constrain new lines to horizontal or vertical only.',
+      'editor.rulers.help': 'Display rulers along the top and left of the canvas.',
+      'field.units': 'Drawing units',
+      'field.precision': 'Coordinate precision',
+      'field.angleUnit': 'Angle units',
+      'field.historyDepth': 'Undo history depth',
+      'field.renderQuality': 'Render quality',
+      'field.historyDepth.help': 'Higher values use more memory.',
+      'unit.mm': 'Millimeters (mm)',
+      'unit.cm': 'Centimeters (cm)',
+      'unit.m': 'Meters (m)',
+      'unit.in': 'Inches (in)',
+      'unit.ft': 'Feet (ft)',
+      'angle.deg': 'Degrees',
+      'angle.rad': 'Radians',
+      'quality.low': 'Low (fastest)',
+      'quality.balanced': 'Balanced',
+      'quality.high': 'High (smoothest)',
+      'unit.steps': 'steps',
+      'field.strokeWidth': 'Stroke width',
+      'field.lineStyle': 'Line style',
+      'field.lineCap': 'Line cap',
+      'field.font': 'Default font',
+      'field.textSize': 'Default text size',
+      'field.paper': 'Default paper size',
+      'field.orientation': 'Orientation',
+      'line.solid': 'Solid',
+      'line.dashed': 'Dashed',
+      'line.dotted': 'Dotted',
+      'line.dashdot': 'Dash-dot',
+      'cap.round': 'Round',
+      'cap.butt': 'Butt',
+      'cap.square': 'Square',
+      'paper.custom': 'Custom',
+      'orient.portrait': 'Portrait',
+      'orient.landscape': 'Landscape',
+      'defaults.note': "These settings apply to newly drawn entities. Existing geometry isn't changed.",
+      'shortcuts.note': 'Keyboard shortcuts are read-only in this build. Custom bindings ship in a future release.',
+      'stat.users': 'Users',
+      'stat.sessions': 'Active sessions',
+      'stat.projects': 'Projects',
+      'stat.storage': 'Storage used',
+      'table.lastActive': 'Last active',
+      'admin.oidc': 'Enable OIDC sign-in',
+      'admin.ldap': 'Enable LDAP sign-in',
+      'admin.autoProvision': 'Auto-provision users on first login',
+      'admin.oidc.help': 'Show \"Continue with SSO\" on the login page.',
+      'admin.ldap.help': 'Allow users to authenticate against your directory.',
+      'admin.autoProvision.help': 'Create local accounts for verified directory users automatically.',
+      'admin.note': 'Administrator-only settings. These changes affect every user of this AUROR instance and are persisted on the backend.',
+      'field.issuer': 'Issuer URL',
+      'field.clientId': 'Client ID',
+      'field.clientSecret': 'Client secret',
+      'field.scopes': 'Scopes',
+      'field.redirect': 'Redirect URI',
+      'field.adminClaim': 'Admin group claim',
+      'field.server': 'Server',
+      'field.baseDn': 'Base DN',
+      'field.bindDn': 'Bind DN',
+      'field.bindPw': 'Bind password',
+      'field.userFilter': 'User search filter',
+      'field.adminDn': 'Admin group DN',
+      'field.issuer.help': 'OpenID provider discovery base URL.',
+      'field.redirect.help': "Add this URI to your provider's allowed callbacks.",
+      'field.adminClaim.help': 'Members of this group are granted admin role.',
+      'field.email': 'Email',
+      'field.displayName': 'Display name',
+      'field.tempPw': 'Temporary password',
+      'field.newPw': 'New password',
+      'field.tempPw.help': 'User will be prompted to change it on first login.',
+      'field.newPw.help': 'Minimum 8 characters. The user will be required to update it at next sign-in.',
+      'role.administrator': 'Administrator',
+      'ds.foundations': 'Foundations',
+      'ds.color': 'Color',
+      'ds.type': 'Type',
+      'ds.space': 'Space',
+      'ds.shape': 'Shape',
+      'ds.motion': 'Motion',
+      'ds.icons': 'Icons',
+      'ds.components': 'Components',
+      'ds.patterns': 'Patterns',
+      'ds.voice': 'Voice',
+      'action.settings': 'Settings',
+      'sec.principles.t': 'Principles',
+      'sec.principles.l': 'Four rules that keep AUROR feeling like AUROR. Apply them when extending tools, panels, exports or any new screen.',
+      'sec.palette.t': 'Palette',
+      'sec.type.t': 'Typography',
+      'sec.space.t': 'Spacing scale',
+      'sec.shape.t': 'Radii &amp; elevation',
+      'sec.motion.t': 'Motion is optional',
+      'sec.icons.t': 'Icons',
+      'sec.components.t': 'Components',
+      'sec.patterns.t': 'Patterns',
+      'sec.voice.t': 'Voice &amp; tone',
+      'card.state': 'State',
+      'card.state.m': 'Sparingly. Most messaging uses Ink/Muted.',
+      'card.radii': 'Radii',
+      'card.radii.m': 'One radius for everything',
+      'card.elevation': 'Elevation',
+      'card.elevation.m': 'Three steps, used in this order',
+      'card.button': 'Button',
+      'card.button.m': '36–40 px tall · radius 10 · border 1 px line · gap 8 between icon + label',
+      'card.inputs': 'Inputs &amp; selects',
+      'card.inputs.m': 'Height 36 · radius 10 · 10 px horizontal padding',
+      'card.tagToggle': 'Tag, toggle, keyboard',
+      'card.tagToggle.m': 'State, mode, shortcuts',
+      'card.dock': 'Tool dock',
+      'card.dock.m': 'Vertical, fixed 64 px wide · 44 px tools · 10 px gap',
+      'card.layers': 'Layer list',
+      'card.inspector': 'Inspector panel',
+      'card.inspector.m': 'Right-side · 420 px wide · stacked cardSec sections',
+      'card.ctxMenu': 'Canvas context menu',
+      'card.ctxMenu.m': 'Right-click anywhere on the canvas · keep flat, no submenus',
+      'card.audioBar': 'Audio bar',
+      'card.audioBar.m': 'Floating voice capture · drag the grip, pull the right edge to narrow it',
+      'card.feedback': 'Feedback',
+      'card.feedback.m': 'Four ways to say something · pick by who has to act, and when',
+      'card.statusBar': 'Status bar &amp; command field',
+      'card.statusBar.m': 'Bottom of the workspace · always visible',
+      'card.picker': 'Color picker',
+      'card.shell': 'Workspace shell',
+      'card.shell.m': 'Header · dock · stage · inspector · status',
+      'card.bilingual': 'Bilingual content',
+      'card.bilingual.m': 'Italian first, English equal',
+      'card.voiceCtx': 'Voice in context',
+      'card.voiceCtx.m': 'How it shows up',
+      'lbl.floating': 'Floating, not docked',
+      'lbl.shrink': 'Shrink order',
+      'lbl.recordNotDanger': 'Record ≠ danger',
+      'lbl.notice': 'Notice — in the page, next to what it is about',
+      'lbl.toast': 'Toast — already done, nothing to decide',
+      'lbl.modal': 'Modal — the app cannot proceed without an answer',
+      'lbl.empty': 'Empty state — where the content would be',
+      'empty.projects': 'No projects yet',
+      'empty.projects.body': 'Projects you create show up here. Start from a blank sheet or import an existing file.'
+    }
+  };
+
+  function get() {
+    try { return STRINGS[localStorage.getItem(KEY)] ? localStorage.getItem(KEY) : DEFAULT; }
+    catch (e) { return DEFAULT; }
+  }
+
+  function t(key, lang) {
+    var l = lang || get();
+    var dict = STRINGS[l] || STRINGS[DEFAULT];
+    if (Object.prototype.hasOwnProperty.call(dict, key)) return dict[key];
+    // Not translated yet — show the Italian rather than the bare key.
+    var base = STRINGS[DEFAULT];
+    if (Object.prototype.hasOwnProperty.call(base, key)) return base[key];
+    // Genuinely unknown key: loud in the UI, so it gets fixed.
+    return key;
+  }
+
+  /* Which keys still need an English string. Run AurorI18n.todo() in the
+     console to see what is left to translate. */
+  function todo(lang) {
+    var l = lang || 'en';
+    return Object.keys(STRINGS[DEFAULT]).filter(function (k) {
+      return !Object.prototype.hasOwnProperty.call(STRINGS[l] || {}, k);
+    });
+  }
+
+  function apply(lang) {
+    var l = STRINGS[lang] ? lang : get();
+    document.documentElement.setAttribute('lang', l);
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      el.textContent = t(el.getAttribute('data-i18n'), l);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+      el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder'), l));
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+      var s = t(el.getAttribute('data-i18n-title'), l);
+      el.setAttribute('title', s);
+      if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', s);
+    });
+    document.querySelectorAll('[data-i18n-label]').forEach(function (el) {
+      el.setAttribute('aria-label', t(el.getAttribute('data-i18n-label'), l));
+    });
+    document.dispatchEvent(new CustomEvent('auror-lang', { detail: { lang: l } }));
+  }
+
+  function set(lang) {
+    var l = STRINGS[lang] ? lang : DEFAULT;
+    try { localStorage.setItem(KEY, l); } catch (e) {}
+    apply(l);
+    return l;
+  }
+
+  global.AurorI18n = {
+    get: get, set: set, apply: apply, t: t, todo: todo,
+    languages: Object.keys(STRINGS),
+    strings: STRINGS
+  };
+
+  function init() { apply(get()); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  global.addEventListener('storage', function (e) { if (e.key === KEY) apply(get()); });
+})(window);
